@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Quanta+PaperPen</title>
     <style>
         html, body{
@@ -13,10 +13,11 @@
         }
         #header {
             background: whitesmoke;
+            padding: 0px 16px;
         }
         #header img{
-            height: 60px;
-            margin: 8px 24px;
+            height: 70px;
+            margin: 8px;
         }
         #container{
             background: whitesmoke;
@@ -31,6 +32,7 @@
             flex-direction: column;
             background-color: white;
             cursor: pointer;
+            width: 300px;
         }
 
         .documentCard:hover{
@@ -55,7 +57,6 @@
             position: fixed;
             margin: 0;
             top: 0; left: 0; right: 0; bottom: 0;
-            /*padding: 16px;*/
             background: white;
             display: flex;
         }
@@ -67,6 +68,9 @@
             padding: 16px;
             box-sizing: border-box;
             overflow: auto;
+            min-width: 300px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.5);
+            z-index: 2;
         }
 
         .documentDetails_details > * {
@@ -82,30 +86,53 @@
         .documentDetails_close{
             height: 60px;
             width: 60px;
-            background: rgb(200,200,200);
+            background: rgb(240,240,240);
             border-radius: 30px;
-            margin: 8px;
             align-self: flex-end;
+            font-size: 40px;
+            line-height: 60px;
+            text-align: center;
+            cursor: pointer;
         }
         
+        .documentDetails_close:hover{
+            background-color: rgb(200,200,210);
+        }
+
+        .documentDetails_category{
+            padding: 8px;
+            border-radius: 8px;
+            background: rgb(200,200,200);
+            align-self: flex-start;
+            cursor: default;
+        }
+
         .documentDetails_score{
-            font-size: 3em;
+            font-size: 4em;
+            border: none;
         }
 
         .documentDetails iframe{
             flex: 2;
             border: none;
+            min-height: 70vh;
         }
         .documentDetails_comments{
-            padding: 4px;
             font-family: Arial, Helvetica, sans-serif;
             font-size: 1.2em;
+            border: none;
+        }
+        .documentDetails_submit{
+            margin: 16px 0px;
+            padding: 16px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div id="header">
-        <img src="quanta.PNG" alt="">
+        <img src="quanta.PNG" alt=""> 
+        <img src="paperpen.png" alt="">
     </div>
     <div id="container"></div>
     <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
@@ -117,6 +144,13 @@
     <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-storage.js"></script>
 
     <script>
+
+        let reviewers = [
+            'a01025025@itesm.mx',
+            'adla.castro@tec.mx',
+        ]
+
+
         // Your web app's Firebase configuration
         var firebaseConfig = {
             apiKey: "AIzaSyCP0nXHd7aimWCMBdko_ScE0iyDSIagwqw",
@@ -135,10 +169,15 @@
 
         firebase.firestore().collection('paperpen').get().then(query=>{
             query.forEach(doc=>{
-                document.querySelector('#container').append( new DocumentCard(doc.data()).dom )
+                document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}).dom )
 
             })
         })
+
+
+        if(firebase.auth().currentUser){
+
+        }
 
 
         class DocumentCard {
@@ -162,10 +201,10 @@
 
                 this.dom.addEventListener('click', ()=>{
                     //alert('a')
-                    firebase.storage().ref().child('paperpen/002400-0083(hhm295)EduardoVillalpando.pdf').getDownloadURL().then(url=>{
+                    firebase.storage().ref().child(data.url).getDownloadURL().then(url=>{
                         console.log(url)
 
-                        new DocumentDetails({...data, url: url})
+                        new DocumentDetails({...data, url: url}, data.author == firebase.auth().currentUser.email)
 
                     })
                 })
@@ -175,7 +214,7 @@
 
 
         class DocumentDetails{
-            constructor(data){
+            constructor(data, editable=false){
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentDetails';
 
@@ -193,6 +232,8 @@
 
                 let close = document.createElement('div');
                 close.className = 'documentDetails_close';
+                close.classList.add('material-icons'); 
+                close.innerHTML = "close"
 
                 let details = document.createElement('div');
                 details.className = 'documentDetails_details';
@@ -202,9 +243,15 @@
                 title.className = 'documentDetails_title';
                 title.innerHTML = data.title;
 
-                let score = document.createElement('span');
+                let category = document.createElement('div');
+                category.className = 'documentDetails_category';
+                category.innerHTML = data.category;
+
+                let score = document.createElement('input');
+                score.type = 'number';
                 score.className = 'documentDetails_score';
-                score.innerHTML = data.score;
+                score.value = data.score;
+                score.readOnly = !editable;
 
                 let author = document.createElement('a');
                 author.href = `mailto:${data.author}`;
@@ -217,21 +264,45 @@
                 let comments = document.createElement('textarea');
                 comments.className = 'documentDetails_comments';
                 comments.innerHTML = data.comments;
+                comments.readOnly = !editable;
+
+
+                let button = document.createElement('button');
+                button.className = 'documentDetails_submit';
+                button.innerHTML = "ACTUALIZAR";
 
 
                 details.append(
-                    title,
+                    category, title,
                     generateHeading('CALIFICACIÓN'), score,
+                    generateHeading('FECHA'), data.date.toDate().toLocaleDateString(),
                     generateHeading('AUTOR(A)'), author,
                     generateHeading('ASESOR(A)'), reviewer,
                     generateHeading('COMENTARIOS'), comments,
                 )
+
+                if(editable){
+                    details.append(button);
+                }
+
                 this.dom.append(pdf, details);
 
                 document.body.append(this.dom)
 
                 close.addEventListener('click', ()=>{
                     this.dom.remove()
+                })
+
+                button.addEventListener('click', ()=>{
+                    let newData = {
+                        comments: comments.value,
+                        score: Number(score.value)
+                    }
+                    if(editable){
+                        firebase.firestore().collection('paperpen').doc(data.id).update(newData).then(()=>{
+                            console.log("updated")
+                        })
+                    }
                 })
 
             }
