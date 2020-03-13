@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quanta+PaperPen</title>
+    <style>
+        html, body{
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #container{
+            background: whitesmoke;
+            display: flex;
+        }
+        .documentCard{
+            border: 1px solid rgb(200,200,200);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .documentCard:hover{
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25);
+
+        }
+
+        .documentCard .documentCard_title{
+            margin: 2px 0px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .documentCard .documentCard_author, .documentCard .documentCard_date{
+            color: rgb(100,100,100);
+            margin: 4px 0px;
+        }
+
+        .documentDetails{
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            margin: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
+            /*padding: 16px;*/
+            background: white;
+            display: flex;
+        }
+
+        .documentDetails_details{
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding: 16px;
+            box-sizing: border-box;
+
+        }
+        .documentDetails_heading{
+            font-weight: 600;
+            margin: 2px 0px;
+            margin-top: 2em;
+        }
+
+        .documentDetails_close{
+            height: 60px;
+            width: 60px;
+            background: rgb(200,200,200);
+            border-radius: 30px;
+            margin: 8px;
+            align-self: flex-end;
+        }
+        
+        .documentDetails_score{
+            font-size: 3em;
+        }
+
+        .documentDetails iframe{
+            flex: 2;
+            border: none;
+        }
+        .documentDetails_comments{
+            padding: 4px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-storage.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyCP0nXHd7aimWCMBdko_ScE0iyDSIagwqw",
+            authDomain: "quantacsf.firebaseapp.com",
+            databaseURL: "https://quantacsf.firebaseio.com",
+            projectId: "quantacsf",
+            storageBucket: "quantacsf.appspot.com",
+            messagingSenderId: "211199920750",
+            appId: "1:211199920750:web:895b1b98ee3a7fff5f347f",
+            measurementId: "G-BX2S5PS0W0"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        //firebase.analytics();
+
+
+        firebase.firestore().collection('paperpen').get().then(query=>{
+            query.forEach(doc=>{
+                document.querySelector('#container').append( new DocumentCard(doc.data()).dom )
+
+            })
+        })
+
+
+        class DocumentCard {
+            constructor(data){
+                this.dom = document.createElement('div');
+                this.dom.className = 'documentCard';
+
+                let title = document.createElement('h1');
+                title.className = 'documentCard_title';
+                title.innerHTML = data.title;
+
+                let author = document.createElement('span');
+                author.className = 'documentCard_author';
+                author.innerHTML = data.author;
+
+                let date = document.createElement('span');
+                date.className = 'documentCard_date';
+                date.innerHTML = data.date.toDate().toLocaleDateString();
+
+                this.dom.append(title, author, date)
+
+                this.dom.addEventListener('click', ()=>{
+                    //alert('a')
+                    firebase.storage().ref().child('paperpen/002400-0083(hhm295)EduardoVillalpando.pdf').getDownloadURL().then(url=>{
+                        console.log(url)
+
+                        new DocumentDetails({...data, url: url})
+
+                    })
+                })
+
+            }
+        }
+
+
+        class DocumentDetails{
+            constructor(data){
+                this.dom = document.createElement('div');
+                this.dom.className = 'documentDetails';
+
+                let br = document.createElement('br');
+
+                function generateHeading(text){
+                    let h = document.createElement('span');
+                    h.className = 'documentDetails_heading';
+                    h.innerHTML = text;
+                    return h;
+                }
+
+                let pdf = document.createElement('iframe');
+                pdf.src = data.url;
+
+                let close = document.createElement('div');
+                close.className = 'documentDetails_close';
+
+                let details = document.createElement('div');
+                details.className = 'documentDetails_details';
+                details.append(close);
+
+                let title = document.createElement('h1');
+                title.className = 'documentDetails_title';
+                title.innerHTML = data.title;
+
+                let score = document.createElement('span');
+                score.className = 'documentDetails_score';
+                score.innerHTML = data.score;
+
+                let author = document.createElement('a');
+                author.href = `mailto:${data.author}`;
+                author.innerHTML = data.author;
+
+                let reviewer = document.createElement('a');
+                reviewer.href = `mailto:${data.reviewer}`;
+                reviewer.innerHTML = data.reviewer;
+
+                let comments = document.createElement('textarea');
+                comments.className = 'documentDetails_comments';
+                comments.innerHTML = data.comments;
+
+
+                details.append(
+                    title,
+                    generateHeading('CALIFICACIÓN'), score,
+                    generateHeading('AUTOR(A)'), author,
+                    generateHeading('ASESOR(A)'), reviewer,
+                    generateHeading('COMENTARIOS'), comments,
+                )
+                this.dom.append(pdf, details);
+
+                document.body.append(this.dom)
+
+                close.addEventListener('click', ()=>{
+                    this.dom.remove()
+                })
+
+            }
+        }
+
+
+    </script>
+
+</body>
+</html>
