@@ -52,13 +52,15 @@
         }
 
         .documentDetails{
-            height: 100%;
-            width: 100%;
+
             position: fixed;
             margin: 0;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 16px; left: 16px; right: 16px; bottom: 16px;
             background: white;
             display: flex;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.5);
+            border: 1px solid rgb(200,200,200);
+            border-radius: 8px;
         }
 
         .documentDetails_details{
@@ -69,7 +71,7 @@
             box-sizing: border-box;
             overflow: auto;
             min-width: 300px;
-            box-shadow: 0 14px 28px rgba(0,0,0,0.5);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.2);
             z-index: 2;
         }
 
@@ -93,6 +95,8 @@
             line-height: 60px;
             text-align: center;
             cursor: pointer;
+            position: sticky;
+            top: 0;
         }
         
         .documentDetails_close:hover{
@@ -107,6 +111,11 @@
             cursor: default;
         }
 
+        .documentDetails_title{
+            font-size: 2.4em;
+            margin: 8px 0px;
+        }
+        
         .documentDetails_score{
             font-size: 4em;
             border: none;
@@ -116,17 +125,36 @@
             flex: 2;
             border: none;
             min-height: 70vh;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
         }
         .documentDetails_comments{
             font-family: Arial, Helvetica, sans-serif;
             font-size: 1.2em;
             border: none;
+            flex: 1;
         }
         .documentDetails_submit{
             margin: 16px 0px;
             padding: 16px;
             font-weight: 600;
         }
+
+        #upload{
+            background-color: green;
+            height: 100px;
+            width: 100px;
+            margin: 16px;
+            border-radius: 50px;
+            position: fixed;
+            bottom: 0; right: 0;
+            font-size: 60px;
+            line-height: 100px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -175,9 +203,48 @@
         })
 
 
-        if(firebase.auth().currentUser){
+        //if(firebase.auth().currentUser){
+            
+            //filupload.id = "upload";
+            let uploadBtn = document.createElement('div');
+            uploadBtn.id = "upload";
+            uploadBtn.className = 'material-icons';
+            uploadBtn.innerHTML = 'cloud_upload';
 
-        }
+            uploadBtn.addEventListener('click', ()=>{
+                let fileupload = document.createElement('input');
+                fileupload.type = 'file';
+                fileupload.click();
+                fileupload.addEventListener('change', ()=>{
+                    let title = prompt("Ingresa el título de tu historia");
+                    let author = firebase.auth().currentUser ? firebase.auth().currentUser.email : prompt('Ingresa tu correo');
+
+                    let route = '/paperpen/'+author+'_'+title;
+                    if(confirm(`Se subirá el documento ${title} (${fileupload.files[0].name}) con el correo ${author}. \n Confirmar.`)){
+                        firebase.firestore().collection('paperpen').add({
+                            author: author,
+                            title: title,
+                            url: route,
+                            score: Number(0),
+                            date: firebase.firestore.Timestamp.fromDate(new Date()).toDate(),
+                            comments: '',
+                            reviewer: 'a01023646@itesm.mx',
+                            category: 'TEST'
+                        })
+                        firebase.storage().ref().child(route).put(fileupload.files[0]).then(()=>{
+                            window.location.reload()
+                        })
+                    }
+
+
+                })
+            })
+
+            
+
+            document.body.append(uploadBtn);
+            
+        //}
 
 
         class DocumentCard {
@@ -249,6 +316,8 @@
 
                 let score = document.createElement('input');
                 score.type = 'number';
+                score.max = 100;
+                score.min = 0;
                 score.className = 'documentDetails_score';
                 score.value = data.score;
                 score.readOnly = !editable;
