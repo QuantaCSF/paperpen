@@ -11,6 +11,13 @@
             margin: 0;
             padding: 0;
         }
+        #header {
+            background: whitesmoke;
+        }
+        #header img{
+            height: 60px;
+            margin: 8px 24px;
+        }
         #container{
             background: whitesmoke;
             display: flex;
@@ -59,8 +66,13 @@
             flex-direction: column;
             padding: 16px;
             box-sizing: border-box;
-
+            overflow: auto;
         }
+
+        .documentDetails_details > * {
+            flex-shrink: 0;
+        }
+
         .documentDetails_heading{
             font-weight: 600;
             margin: 2px 0px;
@@ -92,6 +104,9 @@
     </style>
 </head>
 <body>
+    <div id="header">
+        <img src="quanta.PNG" alt="">
+    </div>
     <div id="container"></div>
     <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
