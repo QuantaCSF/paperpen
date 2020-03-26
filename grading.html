@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Quanta+PaperPen</title>
+    <style>
+        :root{
+            --border-extralight: 0.5px solid rgb(200,200,200);
+            --measurement-half: 4px;
+            --measurement-simple: 8px;
+            --measurement-double: 16px;
+
+            --color-blue: rgb(0,122,255)
+        }
+
+
+        html, body{
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: whitesmoke;
+
+        }
+        #header {
+            padding: 0px var(--measurement-double);
+        }
+        #header img{
+            height: 70px;
+            margin: var(--measurement-simple);
+        }
+        #container{
+            display: flex;
+            flex-wrap: wrap;
+            padding: var(--measurement-simple);
+            box-sizing: border-box;
+        }
+        .documentCard{
+            border: var(--border-extralight);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            cursor: pointer;
+            width: 300px;
+            flex: 1;
+        }
+
+        .documentCard:hover{
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25);
+
+        }
+
+        .documentCard .documentCard_title{
+            margin: calc(0.5*var(--measurement-half)) 0px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .documentCard .documentCard_author, .documentCard .documentCard_date{
+            color: rgb(100,100,100);
+            margin: var(--measurement-half) 0px;
+        }
+
+        .documentDetails{
+            position: fixed;
+            margin: 0;
+            top: 16px; left: 16px; right: 16px; bottom: 16px;
+            background: white;
+            display: flex;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.5);
+            border: var(--border-extralight);
+            border-radius: var(--measurement-simple);
+        }
+
+        .documentDetails_details{
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding: 16px;
+            box-sizing: border-box;
+            overflow: auto;
+            min-width: 300px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+
+        .documentDetails_details > * {
+            flex-shrink: 0;
+        }
+
+        .documentDetails_heading{
+            font-weight: 600;
+            margin: 2px 0px;
+            margin-top: 2em;
+        }
+
+        .documentDetails_close{
+            height: 60px;
+            width: 60px;
+            background: rgb(240,240,240);
+            border-radius: 30px;
+            align-self: flex-end;
+            font-size: 40px;
+            line-height: 60px;
+            text-align: center;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+        }
+        
+        .documentDetails_close:hover{
+            background-color: rgb(200,200,210);
+        }
+
+        .documentDetails iframe{
+            flex: 2;
+            border: none;
+            min-height: 70vh;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .documentDetails_details > ul[name="themes"]{
+            list-style: none;
+            padding: 0px;
+        }
+        .documentDetails_details > ul[name="themes"] > li{
+            margin: calc(0.5*var(--measurement-half));
+            background: var(--color-blue);
+            padding: calc(0.5*var(--measurement-half));
+            display: inline-block;
+            border-radius: 4px;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="header">
+        <img src="quanta.PNG" alt=""> 
+        <img src="paperpen.png" alt="">
+    </div>
+    <div id="container"></div>
+    <script src="settings.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-storage.js"></script>
+
+    <script>
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        //firebase.analytics();
+
+
+        firebase.firestore().collection('paperpen2').get().then(query=>{
+            query.forEach(doc=>{
+                document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}).dom )
+
+            })
+        })
+
+
+        
+
+
+        class DocumentCard {
+            constructor(data){
+                this.dom = document.createElement('div');
+                this.dom.className = 'documentCard';
+
+                let title = document.createElement('h1');
+                title.className = 'documentCard_title';
+                title.innerHTML = data.title;
+
+                let author = document.createElement('span');
+                author.className = 'documentCard_author';
+                author.innerHTML = data.author;
+
+
+                this.dom.append(title, author)
+
+                this.dom.addEventListener('click', ()=>{
+                    //alert('a')
+                    
+                        new DocumentDetails(data, true)
+
+                
+                })
+
+            }
+        }
+
+
+        class DocumentDetails{
+            constructor(data, editable=false){
+                this.data = {};
+                this.dom = document.createElement('div');
+                this.dom.className = 'documentDetails';
+                let pdf = document.createElement('iframe');
+                firebase.storage().ref().child("paperpen2/"+data.id).getDownloadURL().then(url=>{
+                    pdf.src = url
+                })
+                let close = document.createElement('div');
+                close.className = 'documentDetails_close';
+                close.classList.add('material-icons'); 
+                close.innerHTML = "close"
+
+                let details = document.createElement('div');
+                details.className = 'documentDetails_details'
+                details.appendChild(document.querySelector('.template_documentDetails_details').content)
+                
+                data.themes.forEach(l=>{
+                    let theme = document.createElement('li');
+                    theme.innerText = l;
+                    details.querySelector("[name='themes']").append(theme)
+                })
+
+                QPP_CRITERIA.forEach(l=>{
+                    console.log(l)
+                    let row = document.createElement('div');
+                    row.className = 'documentDetails_details_criteria';
+                    row.appendChild(document.importNode(document.querySelector('.template_documentDetails_criteria').content, true));
+
+                    row.querySelector("legend").innerText = l.criteria;
+                    row.querySelector("input[type='range']").value = data.grade[l.criteria];
+                    row.querySelector("[name='value']").innerHTML = data.grade[l.criteria];
+
+
+                    row.querySelector("input[type='range']").addEventListener('change', e=>{
+                        let grade = e.target.value;
+                        row.querySelector("[name='value']").innerHTML = grade;
+                        data.grade[l.criteria] = e.target.value;
+                        let band = '';
+                        if(grade >= 0 && grade <= 5){ band = 'bad'; }
+                        else if(grade >= 6 && grade <= 10){ band = 'normal'}
+                        else if(grade >= 11 && grade <= 15){ band = 'good'}
+                        else if(grade >= 16 && grade <= 20){ band = 'excellent'}
+
+
+                        row.querySelector("[name='comment']").innerHTML = l[band]
+
+                    })
+
+                    details.append(row)
+                })
+                
+                
+
+                details.prepend(close);
+                this.dom.append(pdf, details);
+                document.body.append(this.dom)
+
+                close.addEventListener('click', ()=>{
+                    this.dom.remove()
+                })
+
+                
+
+            }
+        }
+
+
+    </script>
+    <template class="template_documentDetails_details">
+        <h1 name="title">Lorem Ipsum Dolor</h1>
+        <ul name="themes"></ul>
+        <br>
+        <h3>Comentarios</h3>
+        <textarea name="comments"></textarea>
+        <br>
+        <h3>Criterios</h3>
+
+    </template>
+    <template class="template_documentDetails_criteria">
+        <fieldset>
+            <legend>Text</legend>
+            <input type="range" min="0" max="20" step="5">
+            <span name="value">d</span>
+            <span name="comment"></span>
+        </fieldset>
+    </template>
+
+
+</body>
+</html>

@@ -3,71 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <title>Quanta+PaperPen</title>
+    <title>Document</title>
     <style>
-        html, body{
+        :root{
+            --border-extralight: 0.5px solid rgb(200,200,200);
+            --measurement-half: 4px;
+            --measurement-simple: 8px;
+            --measurement-double: 16px;
+        }
+
+        html{
             font-family: Arial, Helvetica, sans-serif;
-            margin: 0;
-            padding: 0;
             background: #62a2a1;
+
         }
+        body{
+            display: flex;
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+            flex-wrap: wrap;
+            height: 100vh;
+            overflow: auto;
+        }
+
         
-        h1{
-            margin: 8px;
-            color: white;
-            font-size: 3em;
-            text-align: center;
+
+        #description{
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            min-width: 700px;
+            width: 100%;
         }
-        h2{
-            margin: 8px;
-            margin-top: 2em;
-            text-align: center;
-        }
-        #header {
-            padding: 0px 16px;
+        #description #header{
+            padding: 0px var(--measurement-double);   
         }
         #header img{
             height: 70px;
             margin: 8px;
         }
-        #container{
-            display: flex;
-            flex-wrap: wrap;
-            padding: 8px;
-            box-sizing: border-box;
+
+        #description h1{
+            font-size: 3em;
+            color: white;
+            margin: 8px;
         }
-        #poster{
+
+        #description #poster{
             width: 100%;
         }
-        #files, #steps, #form, #zoom{
+
+        #description .step{
             display: flex;
             flex-wrap: wrap;
             padding: 16px;
             text-decoration: none;
-
+            margin: 8px;
+            flex: 1;
         }
+        h2{
+            width: 100%;
+            color: white;
+            font-size: 2em
+        }
+
         #files{
             background-color: #91ada2;
         }
         #files a{
             flex: 1;
             background: white;
-            margin: 8px;
-            padding: 16px;
+            margin: var(--measurement-simple);
+            padding: var(--measurement-double);
             font-size: 1.5em;
             font-weight: 600;
             text-decoration: none;
             color: black;
-            border-radius: 8px;
+            border-radius: var(--measurement-simple);
             text-align: center;
         }
-        #files h2, #form h2, #zoom h2{
-            width: 100%;
-            color: white;
-            font-size: 2em
-        }
-        #form{
+        #gforms{
             background: #5d627c;
         }
         #zoom{
@@ -85,42 +101,209 @@
             color:#91ada2
          }
 
+        form{
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            margin: 0px;
+            padding: var(--measurement-double);
+            border: var(--border-extralight);
+            background: white;
+            flex: 1;
+            box-sizing: border-box;
+            font-size: 1.2em;
+            
+        }
+        form h2{
+            color: black;
+        }
+        form>*{
+            margin: var(--measurement-half);
+        }
+        form fieldset{
+            border: none;
+            border-bottom: var(--border-extralight);
+            padding: 0px;
+            padding-bottom: var(--measurement-double);
+        }
+        form fieldset>legend{
+            font-size: 1em;
+            font-weight: 600;
+        }
+        form fieldset>*{
+            width: -webkit-fill-available;
+            margin: var(--measurement-half) 0px;
+            display: inline-block;
+        }
+        form fieldset>input{
+            border: var(--border-extralight);
+            padding: var(--measurement-half);
+        }
+        form fieldset>.heading{
+            font-weight: 600;
+            font-size: 0.8em;
+        }
+
+        form > input[type="submit"]{
+            padding: var(--measurement-simple);
+        }
+
     </style>
 </head>
 <body>
-    <div id="header">
-        <img src="quanta.PNG" alt=""> 
-        <img src="paperpen.png" alt="">
-        <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
-    </div>
-    <h1>Te invitamos a participar en</h1>
-
-    <img id="poster" src="poster.jpeg" alt="">
-
-    <h2>Sigue los pasos a continuación</h2>
+    <script src="settings.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-storage.js"></script>
 
 
-    <div id="files">
-        <h2>1. <small>Obtén información del concurso aquí</small></h2>
 
-        <a href="Convocatoria_CienciaFiccion_Quanta-PaperPen.pdf">Convocatoria</a>
-        <a href="Guía de temas concurso Ciencia-ficción.pdf">Guía de temas</a>
-        <a href="Rúbrica.pdf">Rúbrica</a>
-    </div>   
+    <div id="description">
+        <div id="header">
+            <img src="quanta.PNG" alt=""> 
+            <img src="paperpen.png" alt="">
+            <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
+        </div>
 
-    <a id="form" href="https://forms.gle/AaJa1KZ7UMK5Jkz69">
-        <h2>2. <small>Da click aquí para registrarte</small></h2>
+        <h1>
+            Te invitamos a participar en el
+        </h1>
 
-    </a>
-    <a id="zoom" href="https://itesm.zoom.us/j/3269714229">
-        <h2>3. <small>Asiste a los talleres vía zoom</small></h2>
-        <span>2, 15 y 22 de abril, de 16:30 a 18:30. </span>
+        <img id="poster" src="poster.jpeg" alt="">
 
-    </a>
+        <div id="files" class="step">
+            <h2>1. <small>Obtén información del concurso aquí</small></h2>
+    
+            <a href="Convocatoria_CienciaFiccion_Quanta-PaperPen.pdf">Convocatoria</a>
+            <a href="Guía de temas concurso Ciencia-ficción.pdf">Guía de temas</a>
+            <a href="Rúbrica.pdf">Rúbrica</a>
+        </div>   
 
+        <a id="gforms" class="step" href="https://forms.gle/AaJa1KZ7UMK5Jkz69">
+            <h2>2. <small>Da click aquí para registrarte</small></h2>
+        </a>
 
+        <a id="zoom" class="step" href="https://itesm.zoom.us/j/3269714229">
+            <h2>3. <small>Asiste a los talleres vía zoom</small></h2>
+            <span>2, 15 y 22 de abril, de 16:30 a 18:30. </span>
+    
+        </a>
     
 
+    </div>
+
+
+
+
+
+
+
+    <form action="" id="form">
+        <h2>4. <small>Envíannos tu historia</small></h2>
+
+        <fieldset>
+            <legend>Nombre completo</legend>
+            <input type="text" name="name">
+        </fieldset>
+
+        <fieldset>
+            <legend>Matrícula</legend>
+            <input type="text" name="id">
+        </fieldset>
+        <fieldset>
+            <legend>Semestre</legend>
+            <input type="number" name="semester">
+        </fieldset>
+
+        <fieldset>
+            <legend>Carrera</legend>
+            <input type="text" name="program" id="program">
+        </fieldset>
+
+        <fieldset>
+            <legend>Título</legend>
+            <input type="text" name="title" id="program">
+        </fieldset>
+
+        <fieldset>      
+            <legend>Temas</legend>    
+            <span class="heading">Física clásica y física moderna</span>
+            <label><input type="checkbox" name="theme" value="Fisión y fusión nuclear">Fisión y fusión nuclear</label><br>
+            <label><input type="checkbox" name="theme" value="Radiación">Radiación</label><br>
+            <label><input type="checkbox" name="theme" value="Teoría de cuerdas">Teoría de cuerdas</label><br>
+            <label><input type="checkbox" name="theme" value="Teoría del todo">Teoría del todo</label><br>
+            <label><input type="checkbox" name="theme" value="Fuerzas fundamentales">Fuerzas fundamentales</label><br>
+            <label><input type="checkbox" name="theme" value="Dualidad onda-partícula">Dualidad onda-partícula</label><br>
+            <label><input type="checkbox" name="theme" value="Fenómenos de la luz">Fenómenos de la luz</label><br>
+            <label><input type="checkbox" name="theme" value="Principio de mínima acción">Principio de mínima acción</label><br>
+            <label><input type="checkbox" name="theme" value="Multiverso">Multiverso</label><br>
+            
+            <span class="heading">Astrofísica y relatividad</span>
+            <label><input type="checkbox" name="theme" value="Supernovas">Supernovas</label><br>
+            <label><input type="checkbox" name="theme" value="Pulsares">Pulsares</label><br>
+            <label><input type="checkbox" name="theme" value="Hoyos negros y radiación de Hawking">Hoyos negros y radiación de Hawking</label><br>
+            <label><input type="checkbox" name="theme" value="Dilatación del tiempo">Dilatación del tiempo</label><br>
+            <label><input type="checkbox" name="theme" value="Warp drive">Warp drive</label><br>
+            <label><input type="checkbox" name="theme" value="Materia oscura / Energía oscura">Materia oscura / Energía oscura</label><br>
+            <label><input type="checkbox" name="theme" value="Paradoja de Fermi / Ecuación de Drake / La Gran Barrera">Paradoja de Fermi / Ecuación de Drake / La Gran Barrera</label><br>
+            
+            <span class="heading">Matemáticas</span>
+            <label><input type="checkbox" name="theme" value="Serie de Fibonacci">Serie de Fibonacci</label><br>
+            <label><input type="checkbox" name="theme" value="Razón aúrea">Razón aúrea</label><br>
+            <label><input type="checkbox" name="theme" value="Fractales">Fractales</label><br>
+            <label><input type="checkbox" name="theme" value="Múltiples dimensiones">Múltiples dimensiones</label><br>
+            <label><input type="checkbox" name="theme" value="Permutaciones y combinaciones">Permutaciones y combinaciones</label><br>
+            <label><input type="checkbox" name="theme" value="Primalidad / Teorema de los números primos">Primalidad / Teorema de los números primos</label><br>
+            
+            <span class="heading">Tecnología</span>
+            <label><input type="checkbox" name="theme" value="Nanotecnología">Nanotecnología</label><br>
+            <label><input type="checkbox" name="theme" value="Esfera de Dyson / Civilizaciones Tipo III">Esfera de Dyson / Civilizaciones Tipo III</label><br>
+            <label><input type="checkbox" name="theme" value="Simulaciones por computadora / Universo simulado">Simulaciones por computadora / Universo simulado</label><br>
+            <label><input type="checkbox" name="theme" value="Criptografía cuántica">Criptografía cuántica</label><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Subir documento</legend>
+            <input type="file" name="file">
+        </fieldset>
+
+        <input type="submit" id="submit">
+
+    </form>
+    <script>
+        firebase.initializeApp(firebaseConfig);
+
+        document.querySelector('#form').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            let data = {};
+            data.grade = {}
+            QPP_CRITERIA.forEach(l=>{
+                data.grade[l.criteria] =  0
+            });
+            [...e.target.querySelectorAll("input")].filter(l=>l.type!="checkbox"&&l.type!="submit"&&l.type!="file"&&l.name!="").forEach(l => {
+                data[l.name]=l.value;
+            });
+            let themes = [];
+            [...e.target.querySelectorAll("[name='theme']")].filter(l=>l.checked).forEach(l=>{
+                themes.push(l.value)
+            })
+            data.themes = themes;
+            let files = e.target.querySelector("[name='file']").files[0]
+
+            let id = window.btoa(data.id.toLowerCase()) + "_" + Math.floor(Math.random()*(99)+1);
+            firebase.firestore().collection("paperpen2").doc(id).set(data).then(doc=>{
+                firebase.storage().ref().child("paperpen2/"+id).put(files).then(()=>{
+                    console.log("done with file")
+                })
+            })
+
+
+
+ 
+        })
+    </script>
+  
 
 </body>
 </html>
