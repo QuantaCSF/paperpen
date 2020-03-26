@@ -20,7 +20,8 @@
             font-family: Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 0;
-            background: whitesmoke;
+            background: #62a2a1;
+
 
         }
         #header {
@@ -86,6 +87,7 @@
             width: 400px;
             box-shadow: 0 14px 28px rgba(0,0,0,0.2);
             z-index: 2;
+            height: 100%;
         }
 
         .documentDetails_details > * {
@@ -126,9 +128,15 @@
 
         .documentDetails_details h3{
             font-weight: 600;
-            font-size: 2em;
+            font-size: 1.5em;
             color: rgb(160, 160, 160);
-            margin: var(--measurement-double) 0px;
+            margin: var(--measurement-simple) 0px;
+        }
+        .documentDetails_details textarea{
+            border: none;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.2em;
+            
         }
 
         .documentDetails_details > ul[name="themes"]{
@@ -138,15 +146,17 @@
         .documentDetails_details > ul[name="themes"] > li{
             margin: calc(0.5*var(--measurement-half));
             background: var(--color-blue);
-            padding: calc(0.5*var(--measurement-half));
+            padding: var(--measurement-half);
             display: inline-block;
             border-radius: 4px;
             color: white;
+            font-size: 1.2em;
         }
         
         .documentDetails_details .documentDetails_details_criteria fieldset{
             margin: var(--measurement-simple) 0px;
-            border: var(--border-extralight)
+            border: var(--border-extralight);
+            font-size: 1.2em;
         }
 
         .documentDetails_details .documentDetails_details_criteria input{
@@ -161,6 +171,10 @@
         .documentDetails_details .documentDetails_details_criteria [name="value"]{
             font-weight: 600;
         }
+        .documentDetails_details [name="grade"]{
+            font-weight: 600;
+            font-size:  3em;
+        }
 
     </style>
 </head>
@@ -168,6 +182,8 @@
     <div id="header">
         <img src="quanta.PNG" alt=""> 
         <img src="paperpen.png" alt="">
+        <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
+
     </div>
     <div id="container"></div>
     <script src="settings.js"></script>
@@ -224,7 +240,7 @@
 
         class DocumentDetails{
             constructor(data, editable=false){
-                this.data = {};
+                this.data = data;
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentDetails';
                 let pdf = document.createElement('iframe');
@@ -240,6 +256,9 @@
                 details.className = 'documentDetails_details'
                 details.appendChild(document.importNode(document.querySelector('.template_documentDetails_details').content, true))
                 
+                details.querySelector("[name='grade']").innerHTML = data.score
+
+
                 data.themes.forEach(l=>{
                     let theme = document.createElement('li');
                     theme.innerText = l;
@@ -267,14 +286,14 @@
                     row.querySelector("input[type='range']").addEventListener('change', e=>{
                         grade = e.target.value;
                         row.querySelector("[name='value']").innerHTML = grade;
-                        data.grade[l.criteria] = e.target.value;
+                        data.grade[l.criteria] = Number(e.target.value);
                         let _band = '';
                         if(grade >= 0 && grade <= 5){ _band = 'bad'; }
                         else if(grade >= 6 && grade <= 10){ _band = 'normal'}
                         else if(grade >= 11 && grade <= 15){ _band = 'good'}
                         else if(grade >= 16 && grade <= 20){ _band = 'excellent'}
                         row.querySelector("[name='comment']").innerHTML = l[_band]
-
+                        this.getGrade()
                     })
 
                     details.append(row)
@@ -293,6 +312,12 @@
                 
 
             }
+
+            getGrade(){
+                let grade = Object.values(this.data.grade).reduce((a,b)=>(a+b))/Object.values(this.data.grade).length;
+                console.log(100*grade/20)
+                this.dom.querySelector("[name='grade']").innerHTML = 100*grade/20;
+            }
         }
 
 
@@ -301,6 +326,9 @@
         <h1 name="title">Lorem Ipsum Dolor</h1>
         <ul name="themes"></ul>
         <br>
+        <h3>Calificación</h3>
+        <span name="grade">aa</span>
+
         <h3>Comentarios</h3>
         <textarea name="comments"></textarea>
         <br>
