@@ -11,7 +11,18 @@
             margin: 0;
             padding: 0;
             background: #62a2a1;
-
+        }
+        
+        h1{
+            margin: 8px;
+            color: white;
+            font-size: 3em;
+            text-align: center;
+        }
+        h2{
+            margin: 8px;
+            margin-top: 2em;
+            text-align: center;
         }
         #header {
             padding: 0px 16px;
@@ -29,8 +40,15 @@
         #poster{
             width: 100%;
         }
-        #files{
+        #files, #steps, #form, #zoom{
             display: flex;
+            flex-wrap: wrap;
+            padding: 16px;
+            text-decoration: none;
+
+        }
+        #files{
+            background-color: #91ada2;
         }
         #files a{
             flex: 1;
@@ -44,10 +62,28 @@
             border-radius: 8px;
             text-align: center;
         }
-        h1{
-            margin: 8px;
-            margin-top: 2em;
+        #files h2, #form h2, #zoom h2{
+            width: 100%;
+            color: white;
+            font-size: 2em
         }
+        #form{
+            background: #5d627c;
+        }
+        #zoom{
+            background: #607d8b;
+        }
+        #zoom span{
+            padding: 16px;
+            margin: 8px;
+            border-radius: 8px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            color:#91ada2
+         }
 
     </style>
 </head>
@@ -57,13 +93,33 @@
         <img src="paperpen.png" alt="">
         <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
     </div>
+    <h1>Te invitamos a participar en</h1>
+
     <img id="poster" src="poster.jpeg" alt="">
-    <h1>Obtén información del concurso aquí</h1>
+
+    <h2>Sigue los pasos a continuación</h2>
+
+
     <div id="files">
+        <h2>1. <small>Obtén información del concurso aquí</small></h2>
+
         <a href="Convocatoria_CienciaFiccion_Quanta-PaperPen.pdf">Convocatoria</a>
         <a href="Guía de temas concurso Ciencia-ficción.pdf">Guía de temas</a>
-        <a href="Rúbrica">Rúbrica</a>
+        <a href="Rúbrica.pdf">Rúbrica</a>
     </div>   
+
+    <a id="form" href="https://forms.gle/AaJa1KZ7UMK5Jkz69">
+        <h2>2. <small>Da click aquí para registrarte</small></h2>
+
+    </a>
+    <a id="zoom" href="https://itesm.zoom.us/j/3269714229">
+        <h2>3. <small>Asiste a los talleres vía zoom</small></h2>
+        <span>2, 15 y 22 de abril, de 16:30 a 18:30. </span>
+
+    </a>
+
+
+    
 
 
 </body>
