@@ -219,12 +219,7 @@
                 title.className = 'documentCard_title';
                 title.innerHTML = data.title;
 
-                let author = document.createElement('span');
-                author.className = 'documentCard_author';
-                author.innerHTML = data.author;
-
-
-                this.dom.append(title, author)
+                this.dom.append(title)
 
                 this.dom.addEventListener('click', ()=>{
                     //alert('a')
@@ -240,7 +235,20 @@
 
         class DocumentDetails{
             constructor(data, editable=false){
-                this.data = data;
+                this.data = {
+                    title: '',
+                    score: 0, 
+                    comment: 'Comentarios', 
+                    themes: [],
+                    grade: {
+                        'Creatividad': 0,
+                        'Implementación de elementos científicos veraces': 0,
+                        'Elementos literarios': 0,
+                        'Redacción': 0,
+                        'Formato': 0
+                    },
+                    ...data
+                };
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentDetails';
                 let pdf = document.createElement('iframe');
@@ -256,7 +264,14 @@
                 details.className = 'documentDetails_details'
                 details.appendChild(document.importNode(document.querySelector('.template_documentDetails_details').content, true))
                 
-                details.querySelector("[name='grade']").innerHTML = data.score
+                details.querySelector("[name='title']").innerHTML = this.data.title
+                details.querySelector("[name='grade']").innerHTML = this.data.score
+
+                details.querySelector("[name='comments']").value = this.data.comment
+
+                /*details.querySelector("[name='comments']").addEventListener('change', e=>{
+                    this.data.comment = e.target.value
+                })*/
 
 
                 data.themes.forEach(l=>{
@@ -272,8 +287,8 @@
                     row.appendChild(document.importNode(document.querySelector('.template_documentDetails_criteria').content, true));
 
                     row.querySelector("legend").innerText = l.criteria;
-                    row.querySelector("input[type='range']").value = Number(data.grade[l.criteria]);
-                    row.querySelector("[name='value']").innerHTML = data.grade[l.criteria];
+                    row.querySelector("input[type='range']").value = Number(this.data.grade[l.criteria]);
+                    row.querySelector("[name='value']").innerHTML = this.data.grade[l.criteria];
 
                     let grade = row.querySelector("input[type='range']").value
                     let band = '';
@@ -284,14 +299,15 @@
                     row.querySelector("[name='comment']").innerHTML = l[band]
 
                     row.querySelector("input[type='range']").addEventListener('change', e=>{
-                        grade = e.target.value;
-                        row.querySelector("[name='value']").innerHTML = grade;
-                        data.grade[l.criteria] = Number(e.target.value);
+                        console.log("s")
+                        let _grade = e.target.value;
+                        row.querySelector("[name='value']").innerHTML = _grade;
+                        this.data.grade[l.criteria] = Number(e.target.value);
                         let _band = '';
-                        if(grade >= 0 && grade <= 5){ _band = 'bad'; }
-                        else if(grade >= 6 && grade <= 10){ _band = 'normal'}
-                        else if(grade >= 11 && grade <= 15){ _band = 'good'}
-                        else if(grade >= 16 && grade <= 20){ _band = 'excellent'}
+                        if(_grade >= 0 && _grade <= 5){ _band = 'bad'; }
+                        else if(_grade >= 6 && _grade <= 10){ _band = 'normal'}
+                        else if(_grade >= 11 && _grade <= 15){ _band = 'good'}
+                        else if(_grade >= 16 && _grade <= 20){ _band = 'excellent'}
                         row.querySelector("[name='comment']").innerHTML = l[_band]
                         this.getGrade()
                     })
@@ -299,9 +315,11 @@
                     details.append(row)
                 })
                 
-                
+                let button = document.createElement('button');
+                button.innerHTML = "Enviar"
 
                 details.prepend(close);
+                details.append(button)
                 this.dom.append(pdf, details);
                 document.body.append(this.dom)
 
@@ -309,14 +327,23 @@
                     this.dom.remove()
                 })
 
-                
+                button.addEventListener('click', ()=>{
+                    this.pushData()
+                })
 
             }
 
             getGrade(){
                 let grade = Object.values(this.data.grade).reduce((a,b)=>(a+b))/Object.values(this.data.grade).length;
-                console.log(100*grade/20)
+                this.data.score = 100*grade/20
                 this.dom.querySelector("[name='grade']").innerHTML = 100*grade/20;
+            }
+
+            pushData(){
+                this.data.comment = this.dom.querySelector("[name='comments']").value
+                firebase.firestore().collection('paperpen2').doc(this.data.id).update(this.data).then(()=>{
+                    console.log("updated");
+                })
             }
         }
 
@@ -343,7 +370,9 @@
             <span name="comment"></span>
         </fieldset>
     </template>
-
+    <p style="text-align: center;">
+        Made with 💙 by <a href="httpa://ctrl-alt-tec.hackclub.com">Ctrl Alt Tec</a>
+    </p>
 
 </body>
 </html>
