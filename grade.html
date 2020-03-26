@@ -124,6 +124,13 @@
             border-bottom-left-radius: 8px;
         }
 
+        .documentDetails_details h3{
+            font-weight: 600;
+            font-size: 2em;
+            color: rgb(160, 160, 160);
+            margin: var(--measurement-double) 0px;
+        }
+
         .documentDetails_details > ul[name="themes"]{
             list-style: none;
             padding: 0px;
@@ -135,6 +142,24 @@
             display: inline-block;
             border-radius: 4px;
             color: white;
+        }
+        
+        .documentDetails_details .documentDetails_details_criteria fieldset{
+            margin: var(--measurement-simple) 0px;
+            border: var(--border-extralight)
+        }
+
+        .documentDetails_details .documentDetails_details_criteria input{
+            width: 100%;
+            width: -webkit-fill-available;
+
+        }
+        .documentDetails_details .documentDetails_details_criteria legend{
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        .documentDetails_details .documentDetails_details_criteria [name="value"]{
+            font-weight: 600;
         }
 
     </style>
@@ -213,7 +238,7 @@
 
                 let details = document.createElement('div');
                 details.className = 'documentDetails_details'
-                details.appendChild(document.querySelector('.template_documentDetails_details').content)
+                details.appendChild(document.importNode(document.querySelector('.template_documentDetails_details').content, true))
                 
                 data.themes.forEach(l=>{
                     let theme = document.createElement('li');
@@ -228,22 +253,27 @@
                     row.appendChild(document.importNode(document.querySelector('.template_documentDetails_criteria').content, true));
 
                     row.querySelector("legend").innerText = l.criteria;
-                    row.querySelector("input[type='range']").value = data.grade[l.criteria];
+                    row.querySelector("input[type='range']").value = Number(data.grade[l.criteria]);
                     row.querySelector("[name='value']").innerHTML = data.grade[l.criteria];
 
+                    let grade = row.querySelector("input[type='range']").value
+                    let band = '';
+                    if(grade >= 0 && grade <= 5){ band = 'bad'; }
+                    else if(grade >= 6 && grade <= 10){ band = 'normal'}
+                    else if(grade >= 11 && grade <= 15){ band = 'good'}
+                    else if(grade >= 16 && grade <= 20){ band = 'excellent'}
+                    row.querySelector("[name='comment']").innerHTML = l[band]
 
                     row.querySelector("input[type='range']").addEventListener('change', e=>{
-                        let grade = e.target.value;
+                        grade = e.target.value;
                         row.querySelector("[name='value']").innerHTML = grade;
                         data.grade[l.criteria] = e.target.value;
-                        let band = '';
-                        if(grade >= 0 && grade <= 5){ band = 'bad'; }
-                        else if(grade >= 6 && grade <= 10){ band = 'normal'}
-                        else if(grade >= 11 && grade <= 15){ band = 'good'}
-                        else if(grade >= 16 && grade <= 20){ band = 'excellent'}
-
-
-                        row.querySelector("[name='comment']").innerHTML = l[band]
+                        let _band = '';
+                        if(grade >= 0 && grade <= 5){ _band = 'bad'; }
+                        else if(grade >= 6 && grade <= 10){ _band = 'normal'}
+                        else if(grade >= 11 && grade <= 15){ _band = 'good'}
+                        else if(grade >= 16 && grade <= 20){ _band = 'excellent'}
+                        row.querySelector("[name='comment']").innerHTML = l[_band]
 
                     })
 

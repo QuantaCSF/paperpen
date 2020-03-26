@@ -17,31 +17,31 @@ const QPP_CRITERIA = [
     }, 
     {
         criteria: 'Implementación de elementos científicos veraces',
-        0: 'No se observa creatividad en las convenciones o el contenido del texto.',
-        6: 'Hay clichés aparentes y la ciencia-ficción no es central a la trama.',
-        11: 'El cuento usa un par de conceptos reciclados de otros cuentos y novelas de ciencia-ficción. Los elementos ficticios son atractivos y son fundamentales a la trama del cuento.',
-        16: 'El cuento sale de las convenciones establecidas y es innovador: la narrativa es fresca y no recicla demasiados elementos de historias de ciencia ficción existentes. Los elementos ficticios son atractivos y fundamentales para la trama del cuento.'
+        'bad': 'No se implementó ninguno de los elementos de ciencia indicados.',
+        'normal': 'No se observa investigación o conocimiento de los temas expuestos y éstos no son correspondientes con la realidad',
+        'good': 'Se nota investigación y conocimiento superficial de los conceptos científicos aunque existen algunas discordancias con la realidad.',
+        'excellent': 'Se nota una investigación y conocimiento profundos de los temas científicos expuestos. Los conceptos científicos interactúan de manera perfecta con los elementos ficticios. Los conceptos científicos se exponen de tal manera que son entendibles para una audiencia con conocimiento general.'
     }, 
     {
         criteria: 'Elementos literarios',
-        0: 'No se observa creatividad en las convenciones o el contenido del texto.',
-        6: 'Hay clichés aparentes y la ciencia-ficción no es central a la trama.',
-        11: 'El cuento usa un par de conceptos reciclados de otros cuentos y novelas de ciencia-ficción. Los elementos ficticios son atractivos y son fundamentales a la trama del cuento.',
-        16: 'El cuento sale de las convenciones establecidas y es innovador: la narrativa es fresca y no recicla demasiados elementos de historias de ciencia ficción existentes. Los elementos ficticios son atractivos y fundamentales para la trama del cuento.'
+        'bad': 'No se observa el uso de elementos literarios.',
+        'normal': 'Los elementos literarios empleados son difíciles de identificar o son implementados deficientemente, disrrumpiendo la narrativa.',
+        'good': 'Se observa el uso de elementos literarios que apoyan la narrativa de la historia.',
+        'excellent': 'Los elementos del cuento son perfectamente identificables (personajes, espacios, ambiente, trama, etc.). Los elementos se implementan eficientemente y no provocan disrupciones en la narrativa del cuento.',
     }, 
     {
         criteria: 'Redacción',
-        0: 'No se observa creatividad en las convenciones o el contenido del texto.',
-        6: 'Hay clichés aparentes y la ciencia-ficción no es central a la trama.',
-        11: 'El cuento usa un par de conceptos reciclados de otros cuentos y novelas de ciencia-ficción. Los elementos ficticios son atractivos y son fundamentales a la trama del cuento.',
-        16: 'El cuento sale de las convenciones establecidas y es innovador: la narrativa es fresca y no recicla demasiados elementos de historias de ciencia ficción existentes. Los elementos ficticios son atractivos y fundamentales para la trama del cuento.'
+        'bad': 'La redacción es pobre, confusa y difícil de entender, sin implementación alguna de elementos lingüísticos y con faltas de ortografía y redacción.',
+        'normal': 'La redacción cuenta con faltas de ortografía y redacción y hay deficiencia de elementos lingüísticos.',
+        'good': 'Se observa una buena redacción con buen uso de elementos lingüísticos.',
+        'excelent': 'La redacción del cuento es perfecta, es decir, no es nada confusa y resulta fácil de entender. El cuento contiene e implementa de manera eficaz una variedad de elementos lingüísticos que embellecen el lenguaje.',
     }, 
     {
         criteria: 'Formato',
-        0: 'No se observa creatividad en las convenciones o el contenido del texto.',
-        6: 'Hay clichés aparentes y la ciencia-ficción no es central a la trama.',
-        11: 'El cuento usa un par de conceptos reciclados de otros cuentos y novelas de ciencia-ficción. Los elementos ficticios son atractivos y son fundamentales a la trama del cuento.',
-        16: 'El cuento sale de las convenciones establecidas y es innovador: la narrativa es fresca y no recicla demasiados elementos de historias de ciencia ficción existentes. Los elementos ficticios son atractivos y fundamentales para la trama del cuento.'
+        'bad': 'El formato es pobre o inexistente. Aparece alguna indicación que revele la identidad del autor.',
+        'normal': 'El formato cumple los mínimos necesarios.',
+        'good': 'El formato presenta imperfecciones menores.',
+        'excellent': 'Sigue el formato APA a la perfección y cumple con todos los requerimientos estructurales expuestos en la convocatoria.'
     }
 ]
 
