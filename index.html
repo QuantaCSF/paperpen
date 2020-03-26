@@ -275,6 +275,7 @@
         firebase.initializeApp(firebaseConfig);
 
         document.querySelector('#form').addEventListener('submit', (e)=>{
+            let filled = true;
             e.preventDefault();
             let data = {};
             data.grade = {}
@@ -283,20 +284,28 @@
             });
             [...e.target.querySelectorAll("input")].filter(l=>l.type!="checkbox"&&l.type!="submit"&&l.type!="file"&&l.name!="").forEach(l => {
                 data[l.name]=l.value;
+                if(l.value == ""){ filled = false }
             });
             let themes = [];
             [...e.target.querySelectorAll("[name='theme']")].filter(l=>l.checked).forEach(l=>{
                 themes.push(l.value)
             })
+            if(themes.length==0){ filled = false }
             data.themes = themes;
             let files = e.target.querySelector("[name='file']").files[0]
+            if(!files){ filled = false }
 
             let id = window.btoa(data.id.toLowerCase()) + "_" + Math.floor(Math.random()*(99)+1);
-            firebase.firestore().collection("paperpen2").doc(id).set(data).then(doc=>{
-                firebase.storage().ref().child("paperpen2/"+id).put(files).then(()=>{
-                    console.log("done with file")
+            
+            if(filled){
+                firebase.firestore().collection("paperpen2").doc(id).set(data).then(doc=>{
+                    firebase.storage().ref().child("paperpen2/"+id).put(files).then(()=>{
+                        console.log("done with file")
+                    })
                 })
-            })
+            } else {
+                alert("Por favor llena todos los campos")
+            }
 
 
 
