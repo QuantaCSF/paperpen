@@ -297,12 +297,14 @@
             let files = e.target.querySelector("[name='file']").files[0]
             if(!files){ filled = false }
 
-            let id = window.btoa(data.id.toLowerCase()) + "_" + Math.floor(Math.random()*(99)+1);
+            let id = window.btoa(data.id.toLowerCase());
             
             if(filled){
                 firebase.firestore().collection("paperpen2").doc(id).set(data).then(doc=>{
                     firebase.storage().ref().child("paperpen2/"+id).put(files).then(()=>{
                         console.log("done with file")
+                        alert("La información fue llenada con éxito");
+                        window.location.reload();
                     })
                 })
             } else {

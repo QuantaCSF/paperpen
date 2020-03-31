@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root{
+            --border-extralight: 0.5px solid rgb(200,200,200);
+            --measurement-half: 4px;
+            --measurement-simple: 8px;
+            --measurement-double: 16px;
+        }
+
+        html{
+            font-family: Arial, Helvetica, sans-serif;
+            background: #62a2a1;
+
+        }
+        body{
+            display: flex;
+            flex-direction: column;
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+            flex-wrap: wrap;
+            height: 100vh;
+            overflow: auto;
+            align-items: center;
+        }
+        
+        #header{
+            padding: 0px var(--measurement-double);   
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #header img{
+            height: 70px;
+            margin: 8px;
+        }
+
+       
+        form{
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            width: 100%;
+            margin: var(--measurement-double) 0px;
+            padding: var(--measurement-double);
+            border: var(--border-extralight);
+            background: white;
+            box-sizing: border-box;
+            font-size: 1.2em;
+            border-radius: var(--measurement-simple);
+        }
+        form h2{
+            color: black;
+        }
+        form>*{
+            margin: var(--measurement-half);
+        }
+        form fieldset{
+            border: none;
+            border-bottom: var(--border-extralight);
+            padding: 0px;
+            padding-bottom: var(--measurement-double);
+        }
+        form fieldset>legend{
+            font-size: 1em;
+            font-weight: 600;
+        }
+        form fieldset>*{
+            width: -webkit-fill-available;
+            margin: var(--measurement-half) 0px;
+            display: inline-block;
+        }
+        form fieldset>input{
+            border: var(--border-extralight);
+            padding: var(--measurement-half);
+        }
+        form fieldset>.heading{
+            font-weight: 600;
+            font-size: 0.8em;
+        }
+
+        form > input[type="submit"]{
+            padding: var(--measurement-simple);
+        }
+
+    </style>
+</head>
+<body>
+    <script src="settings.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-storage.js"></script>
+
+    <div id="header">
+        <img src="quanta.PNG" alt=""> 
+        <img src="paperpen.png" alt="">
+        <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
+    </div>
+
+    <form action="" id="form">
+        <h2>Inicia sesión</h2>
+
+        <fieldset>
+            <legend>Correo electrónico</legend>
+            <input type="email" name="email">
+        </fieldset>
+        <fieldset>
+            <legend>COntraseña</legend>
+            <input type="password" name="password">
+        </fieldset>
+
+        <input type="submit" id="submit">
+        <p style="text-align: center;">
+            Made with 💙 by <a href="httpa://ctrl-alt-tec.hackclub.com">Ctrl Alt Tec</a>
+        </p>
+    </form>
+    <script>
+        firebase.initializeApp(firebaseConfig);
+
+        document.querySelector('form').addEventListener('submit', e=>{
+            e.preventDefault();
+            let username = document.querySelector('[name="email"]').value;
+            let password = document.querySelector('[name="password"]').value;
+            firebase.auth().signInWithEmailAndPassword(username, password);
+        })
+
+        firebase.auth().onAuthStateChanged(user=>{
+            if(user){
+                window.location.replace('grade.html');
+            }
+        })
+
+    </script>
+    
+
+</body>
+</html>

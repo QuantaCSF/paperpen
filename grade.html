@@ -193,40 +193,47 @@
     <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-storage.js"></script>
 
     <script>
-
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        //firebase.analytics();
+ 
+        let all = []
 
 
-        firebase.firestore().collection('paperpen2').get().then(query=>{
-            query.forEach(doc=>{
-                document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}).dom )
+        firebase.auth().onAuthStateChanged(user=>{
+            if(!user){
+                window.location.replace('login.html');
+            }else{
+                let userType = '';
+                if(QPP_ADMINS.includes(user.email)){userType='admin'}
+                else if(QPP_REVIEWERS.includes(user.email)){userType='reviewer'}
+                console.log(userType)
 
-            })
+
+                firebase.firestore().collection('paperpen2').get().then(query=>{
+                    document.querySelector('#container').innerHTML=""
+                    query.forEach(doc=>{
+                        all.push({...doc.data(), id: doc.id});
+                        document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}, userType).dom )
+
+                    })
+                })
+
+            }
         })
 
 
-        
 
 
         class DocumentCard {
-            constructor(data){
+            constructor(data, userType){
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentCard';
-
                 let title = document.createElement('h1');
                 title.className = 'documentCard_title';
                 title.innerHTML = data.title;
-
                 this.dom.append(title)
-
                 this.dom.addEventListener('click', ()=>{
-                    //alert('a')
-                    
-                        new DocumentDetails(data, true)
-
-                
+                    new DocumentDetails(data, userType)
                 })
 
             }
@@ -234,7 +241,7 @@
 
 
         class DocumentDetails{
-            constructor(data, editable=false){
+            constructor(data, userType){
                 this.data = {
                     title: '',
                     score: 0, 
@@ -269,6 +276,13 @@
 
                 details.querySelector("[name='comments']").value = this.data.comment
 
+                if(userType!='admin'){
+                    details.querySelector("[name='author_title']").remove();
+                    details.querySelector("[name='author']").remove();
+                    details.querySelector("[name='author_br']").remove();
+                } else {
+                    details.querySelector("[name='author']").innerHTML = this.data.name
+                }
                 /*details.querySelector("[name='comments']").addEventListener('change', e=>{
                     this.data.comment = e.target.value
                 })*/
@@ -353,6 +367,9 @@
         <h1 name="title">Lorem Ipsum Dolor</h1>
         <ul name="themes"></ul>
         <br>
+        <h3 name="author_title">Autor</h3>
+        <span name="author">a</span>
+        <br name="author_br">
         <h3>Calificación</h3>
         <span name="grade">aa</span>
 

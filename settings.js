@@ -1,10 +1,16 @@
 const QPP_ADMINS = [
     'eduardo@ctrlalttec.hackclub.com', 
-    'a01025025@itesm.mx'
+    'a01025025@itesm.mx',
+    'a01027016@itesm.mx', 
+    'a01025326@itesm.mx',
+    'a01027174@itesm.mx',
+    'a01025344@itesm.mx', 
+    'a01025320@itesm.mx', 
 ]
 
 const QPP_REVIEWERS = [
-    'user@example.com'
+    'adla.castro@tec.mx',
+    
 ]
 
 const QPP_CRITERIA = [
