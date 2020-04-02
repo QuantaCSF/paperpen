@@ -9,8 +9,8 @@ const QPP_ADMINS = [
 ]
 
 const QPP_REVIEWERS = [
-    'adla.castro@tec.mx',
-    
+    'aguzmantinajero@tec.mx',
+    'ada.godinez@tec.mx'
 ]
 
 const QPP_CRITERIA = [
