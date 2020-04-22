@@ -36,18 +36,21 @@
             flex-wrap: wrap;
             padding: var(--measurement-simple);
             box-sizing: border-box;
+            justify-content: space-around;
         }
         .documentCard{
             border: var(--border-extralight);
-            border-radius: 8px;
-            padding: 16px;
+            /* border-radius: 8px; */
+            padding: 8px;
             margin: 16px;
             display: flex;
             flex-direction: column;
             background-color: white;
             cursor: pointer;
-            width: 300px;
-            flex: 1;
+            height: 268px;
+            width: 165px;
+            justify-content: center;
+            text-align: center;
         }
 
         .documentCard:hover{
@@ -57,8 +60,9 @@
 
         .documentCard .documentCard_title{
             margin: calc(0.5*var(--measurement-half)) 0px;
-            font-size: 1.5em;
+            font-size: 22px;
             font-weight: 600;
+            font-family: Georgia, 'Times New Roman', Times, serif;
         }
 
         .documentCard .documentCard_author, .documentCard .documentCard_date{
@@ -212,8 +216,13 @@
                 firebase.firestore().collection('paperpen2').get().then(query=>{
                     document.querySelector('#container').innerHTML=""
                     query.forEach(doc=>{
-                        all.push({...doc.data(), id: doc.id});
-                        document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}, userType).dom )
+                        if(userType == 'admin'){
+                            all.push({...doc.data(), id: doc.id});
+                            document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}, userType).dom )
+                        } else if (userType = 'reviewer' && doc.data().reviewer == user.email){
+                            all.push({...doc.data(), id: doc.id});
+                            document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}, userType).dom )
+                        }
 
                     })
                 })
@@ -328,12 +337,29 @@
 
                     details.append(row)
                 })
-                
-                let button = document.createElement('button');
-                button.innerHTML = "Enviar"
-
                 details.prepend(close);
-                details.append(button)
+                
+                if(userType == 'reviewer'){
+                    let button = document.createElement('button');
+                    button.innerHTML = "Enviar"
+                    button.addEventListener('click', ()=>{
+                        this.pushData()
+                    })
+                    details.append(button)
+                } else {
+                    details.querySelectorAll('textarea').forEach(l=>{
+                        l.disabled = true
+                    });
+                    details.querySelectorAll('input').forEach(l=>{
+                        l.disabled = true
+                    })
+                    let legend = document.createElement('div');
+                    legend.innerText = 'Solo los revisores pueden editar la información';
+                    details.append(legend)
+                }
+
+                
+
                 this.dom.append(pdf, details);
                 document.body.append(this.dom)
 
@@ -341,9 +367,7 @@
                     this.dom.remove()
                 })
 
-                button.addEventListener('click', ()=>{
-                    this.pushData()
-                })
+                
 
             }
 

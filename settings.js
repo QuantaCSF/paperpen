@@ -10,7 +10,11 @@ const QPP_ADMINS = [
 
 const QPP_REVIEWERS = [
     'aguzmantinajero@tec.mx',
-    'ada.godinez@tec.mx'
+    'ada.godinez@tec.mx',
+    'yermainmendez@tec.mx',
+    'leticiacruz@tec.mx', 
+    'berenice.valencia@tec.mx', 
+    'teatreroloco@gmail.com'
 ]
 
 const QPP_CRITERIA = [
@@ -40,7 +44,7 @@ const QPP_CRITERIA = [
         'bad': 'La redacción es pobre, confusa y difícil de entender, sin implementación alguna de elementos lingüísticos y con faltas de ortografía y redacción.',
         'normal': 'La redacción cuenta con faltas de ortografía y redacción y hay deficiencia de elementos lingüísticos.',
         'good': 'Se observa una buena redacción con buen uso de elementos lingüísticos.',
-        'excelent': 'La redacción del cuento es perfecta, es decir, no es nada confusa y resulta fácil de entender. El cuento contiene e implementa de manera eficaz una variedad de elementos lingüísticos que embellecen el lenguaje.',
+        'excellent': 'La redacción del cuento es perfecta, es decir, no es nada confusa y resulta fácil de entender. El cuento contiene e implementa de manera eficaz una variedad de elementos lingüísticos que embellecen el lenguaje.',
     }, 
     {
         criteria: 'Formato',
