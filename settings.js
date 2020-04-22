@@ -6,6 +6,7 @@ const QPP_ADMINS = [
     'a01027174@itesm.mx',
     'a01025344@itesm.mx', 
     'a01025320@itesm.mx', 
+    'ana.paula.chapa.7@gmail.com'
 ]
 
 const QPP_REVIEWERS = [
