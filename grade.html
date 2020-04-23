@@ -284,13 +284,21 @@
                 details.querySelector("[name='grade']").innerHTML = this.data.score
 
                 details.querySelector("[name='comments']").value = this.data.comment
+                let id;
+                try{
+                    id = window.atob(data.id.substring(0,12))
+                }catch(e){
+                    console.log(e)
+                    id = "ocurrio un error"
+                }
 
                 if(userType!='admin'){
                     details.querySelector("[name='author_title']").remove();
                     details.querySelector("[name='author']").remove();
                     details.querySelector("[name='author_br']").remove();
                 } else {
-                    details.querySelector("[name='author']").innerHTML = this.data.name
+                    details.querySelector("[name='author']").innerHTML = this.data.name + `
+                    <a href="mailto:${id}@itesm.mx">(${id})</a>`;
                 }
                 /*details.querySelector("[name='comments']").addEventListener('change', e=>{
                     this.data.comment = e.target.value
