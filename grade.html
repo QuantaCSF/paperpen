@@ -465,6 +465,7 @@
                 this.data.comment = this.dom.querySelector("[name='comments']").value
                 firebase.firestore().collection('paperpen2').doc(this.data.id).update(this.data).then(()=>{
                     console.log("updated");
+                    window.location.reload()
                 })
             }
 
