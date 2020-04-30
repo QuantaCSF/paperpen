@@ -20,23 +20,42 @@
             font-family: Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 0;
-            background: #62a2a1;
-
-
+            /* background: #62a2a1; */
         }
         #header {
             padding: 0px var(--measurement-double);
+            display: flex;
         }
         #header img{
             height: 70px;
             margin: var(--measurement-simple);
         }
-        #container{
+
+        #header button{
+            background: rgb(0,122,255);
+            justify-self: flex-end;
+            margin: var(--measurement-simple);
+            appearance: none;
+            border-radius: var(--measurement-simple);
+            border: none;
+            color: white;
+            padding: var(--measurement-double);
+            align-self: center;
+            margin-left: auto;
+        }
+
+        .container{
             display: flex;
             flex-wrap: wrap;
             padding: var(--measurement-simple);
             box-sizing: border-box;
             justify-content: space-around;
+            background: linear-gradient(to bottom, #f9fafc, #e0e6ed);
+
+        }
+        .container h1{
+            width: 100%;
+            text-align: center;
         }
         .documentCard{
             border: var(--border-extralight);
@@ -143,7 +162,7 @@
             
         }
 
-        .documentDetails_details > ul[name="themes"]{
+        .documentDetails_details > ul[name="themes"], .documentDetails_details > ul[name="reviewers"]{
             list-style: none;
             padding: 0px;
         }
@@ -155,6 +174,9 @@
             border-radius: 4px;
             color: white;
             font-size: 1.2em;
+        }
+        .documentDetails_details > ul[name='reviewers'] li.active{
+            font-weight: bold;
         }
         
         .documentDetails_details .documentDetails_details_criteria fieldset{
@@ -180,6 +202,12 @@
             font-size:  3em;
         }
 
+        @media only screen and (max-width: 800px){
+            .documentDetails{
+                top: 0; bottom: 0; right: 0; left: 0;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -188,8 +216,13 @@
         <img src="paperpen.png" alt="">
         <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
 
+        <button name="help">Necesito ayuda...</button>
+
+
     </div>
-    <div id="container"></div>
+    <div class="container" id="reviewed"></div>
+    <div class="container" id="not-reviewed"></div>
+    <div class="container" id="all"></div>
     <script src="settings.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
@@ -211,20 +244,45 @@
                 if(QPP_ADMINS.includes(user.email)){userType='admin'}
                 else if(QPP_REVIEWERS.includes(user.email)){userType='reviewer'}
                 console.log(userType)
+                let reviewed_cont;
+                let not_reviewed_cont;
+                if(userType=='reviewer'){
+                    reviewed_cont = document.querySelector('#reviewed')
+                    not_reviewed_cont = document.querySelector('#not-reviewed')
+                    document.querySelector('#all').remove();
+                    reviewed_cont.innerHTML= "<h1>Documentos revisados</h1>"
+                    not_reviewed_cont.innerHTML= "<h1>Documentos no revisados</h1>"
+                } else {
+                    reviewed_cont = document.querySelector('#all')
+                    not_reviewed_cont = document.querySelector('#all')
+                    document.querySelector("#reviewed").remove();
+                    document.querySelector("#not-reviewed").remove();
+                    document.querySelector('#all').innerHTML= "<h1>Documentos subidos</h1>"
+                }
+                
 
 
                 firebase.firestore().collection('paperpen2').get().then(query=>{
-                    document.querySelector('#container').innerHTML=""
+                    
                     query.forEach(doc=>{
-                        if(userType == 'admin'){
-                            all.push({...doc.data(), id: doc.id});
-                            document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}, userType).dom )
-                        } else if (userType = 'reviewer' && doc.data().reviewer == user.email){
-                            all.push({...doc.data(), id: doc.id});
-                            document.querySelector('#container').append( new DocumentCard({...doc.data(), id: doc.id}, userType).dom )
-                        }
-
+                        let docdata = {
+                            grade_new: {},
+                            ...doc.data(), 
+                            id: doc.id
+                        };
+                        all.push(docdata)
+                        let card = new DocumentCard(docdata, userType, user.email).dom
+                        if( docdata.grade_new[user.email] && Object.values(docdata.grade_new[user.email]).reduce((a,b)=>a+b,0) != 0 ){
+                            reviewed_cont.append(card)
+                        } else {
+                            not_reviewed_cont.append(card)
+                        } 
                     })
+
+                    console.table(all)
+
+                    
+
                 })
 
             }
@@ -234,7 +292,7 @@
 
 
         class DocumentCard {
-            constructor(data, userType){
+            constructor(data, userType, usermail){
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentCard';
                 let title = document.createElement('h1');
@@ -242,7 +300,7 @@
                 title.innerHTML = data.title;
                 this.dom.append(title)
                 this.dom.addEventListener('click', ()=>{
-                    new DocumentDetails(data, userType)
+                    new DocumentDetails(data, userType, usermail)
                 })
 
             }
@@ -250,7 +308,7 @@
 
 
         class DocumentDetails{
-            constructor(data, userType){
+            constructor(data, userType, usermail){
                 this.data = {
                     title: '',
                     score: 0, 
@@ -263,8 +321,30 @@
                         'Redacción': 0,
                         'Formato': 0
                     },
+                    grade_new: {
+                        'test': {
+                            'Creatividad': 0,
+                            'Implementación de elementos científicos veraces': 0,
+                            'Elementos literarios': 0,
+                            'Redacción': 0,
+                            'Formato': 0
+                        }
+                    },
+                    reviewers: [],
                     ...data
                 };
+
+
+                if(this.data.grade_new[usermail] == undefined){
+                    this.data.grade_new[usermail] = {
+                        'Creatividad': 0,
+                        'Implementación de elementos científicos veraces': 0,
+                        'Elementos literarios': 0,
+                        'Redacción': 0,
+                        'Formato': 0
+                    }
+                }
+
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentDetails';
                 let pdf = document.createElement('iframe');
@@ -281,29 +361,37 @@
                 details.appendChild(document.importNode(document.querySelector('.template_documentDetails_details').content, true))
                 
                 details.querySelector("[name='title']").innerHTML = this.data.title
-                details.querySelector("[name='grade']").innerHTML = this.data.score
+                
 
                 details.querySelector("[name='comments']").value = this.data.comment
-                let id;
-                try{
-                    id = window.atob(data.id.substring(0,12))
-                }catch(e){
-                    console.log(e)
-                    id = "ocurrio un error"
+                let id = window.atob(data.id.substring(0,12))
+
+                let reviewers = Object.keys(this.data.grade_new).filter(l=>l!="undefined")
+
+                if(userType != 'admin' || reviewers.length <= 0){
+                    details.querySelector("[name='reviewers']").remove();
+                    details.querySelector("[name='reviewers_title']").remove();
                 }
 
                 if(userType!='admin'){
                     details.querySelector("[name='author_title']").remove();
                     details.querySelector("[name='author']").remove();
                     details.querySelector("[name='author_br']").remove();
+
                 } else {
                     details.querySelector("[name='author']").innerHTML = this.data.name + `
                     <a href="mailto:${id}@itesm.mx">(${id})</a>`;
+                    reviewers.forEach((reviewer, i)=>{
+                        let li = document.createElement('li');
+                        li.innerText = `${reviewer} (${ Object.values(this.data.grade_new[reviewer]).reduce((a,b)=>a+b,0) })`
+                        details.querySelector("[name='reviewers']").append(li)
+                        li.addEventListener('click', ()=>{
+                            details.querySelectorAll("[name='reviewers'] li").forEach(l=>{l.classList.remove('active')})
+                            li.classList.add('active')
+                            this.getCriteriaGrade(reviewer, i)
+                        })
+                    })
                 }
-                /*details.querySelector("[name='comments']").addEventListener('change', e=>{
-                    this.data.comment = e.target.value
-                })*/
-
 
                 data.themes.forEach(l=>{
                     let theme = document.createElement('li');
@@ -312,39 +400,19 @@
                 })
 
                 QPP_CRITERIA.forEach(l=>{
-                    console.log(l)
                     let row = document.createElement('div');
                     row.className = 'documentDetails_details_criteria';
                     row.appendChild(document.importNode(document.querySelector('.template_documentDetails_criteria').content, true));
-
                     row.querySelector("legend").innerText = l.criteria;
-                    row.querySelector("input[type='range']").value = Number(this.data.grade[l.criteria]);
-                    row.querySelector("[name='value']").innerHTML = this.data.grade[l.criteria];
-
-                    let grade = row.querySelector("input[type='range']").value
-                    let band = '';
-                    if(grade >= 0 && grade <= 5){ band = 'bad'; }
-                    else if(grade >= 6 && grade <= 10){ band = 'normal'}
-                    else if(grade >= 11 && grade <= 15){ band = 'good'}
-                    else if(grade >= 16 && grade <= 20){ band = 'excellent'}
-                    row.querySelector("[name='comment']").innerHTML = l[band]
-
                     row.querySelector("input[type='range']").addEventListener('change', e=>{
-                        console.log("s")
-                        let _grade = e.target.value;
-                        row.querySelector("[name='value']").innerHTML = _grade;
-                        this.data.grade[l.criteria] = Number(e.target.value);
-                        let _band = '';
-                        if(_grade >= 0 && _grade <= 5){ _band = 'bad'; }
-                        else if(_grade >= 6 && _grade <= 10){ _band = 'normal'}
-                        else if(_grade >= 11 && _grade <= 15){ _band = 'good'}
-                        else if(_grade >= 16 && _grade <= 20){ _band = 'excellent'}
-                        row.querySelector("[name='comment']").innerHTML = l[_band]
-                        this.getGrade()
+                        this.data.grade_new[usermail][l.criteria] = Number(e.target.value);
+                        this.getCriteriaGrade(usermail);
                     })
-
                     details.append(row)
                 })
+
+
+
                 details.prepend(close);
                 
                 if(userType == 'reviewer'){
@@ -354,13 +422,14 @@
                         this.pushData()
                     })
                     details.append(button)
-                } else {
-                    details.querySelectorAll('textarea').forEach(l=>{
+                 } else {
+
+                    details.querySelector("[name='grade']").innerHTML = this.getGlobalGrade()
+
+                    details.querySelectorAll('textarea, input').forEach(l=>{
                         l.disabled = true
                     });
-                    details.querySelectorAll('input').forEach(l=>{
-                        l.disabled = true
-                    })
+
                     let legend = document.createElement('div');
                     legend.innerText = 'Solo los revisores pueden editar la información';
                     details.append(legend)
@@ -369,6 +438,8 @@
                 
 
                 this.dom.append(pdf, details);
+                this.getCriteriaGrade(usermail)
+
                 document.body.append(this.dom)
 
                 close.addEventListener('click', ()=>{
@@ -379,20 +450,57 @@
 
             }
 
-            getGrade(){
-                let grade = Object.values(this.data.grade).reduce((a,b)=>(a+b))/Object.values(this.data.grade).length;
-                this.data.score = 100*grade/20
-                this.dom.querySelector("[name='grade']").innerHTML = 100*grade/20;
+            getGlobalGrade(){
+                let allgrades = Object.values(this.data.grade_new)
+                                .map(l=>Object.values(l))
+                                .filter(l=> l.reduce((a,b)=>a+b,0)!=0 )
+
+                                console.log("s",allgrades.reduce((a,b)=>a+b,0))
+                let grade = Math.round(allgrades.flat().reduce((a,b)=>a+b,0)/allgrades.length)
+                return grade
             }
 
             pushData(){
+                console.log(this.data)
                 this.data.comment = this.dom.querySelector("[name='comments']").value
                 firebase.firestore().collection('paperpen2').doc(this.data.id).update(this.data).then(()=>{
                     console.log("updated");
                 })
             }
+
+            getGrade(user){
+                return Object.values(this.data.grade_new[user]).reduce((a,b)=>a+b,0)
+            }
+
+            getCriteriaGrade(user){
+                this.dom.querySelectorAll('.documentDetails_details_criteria').forEach((l,i)=>{
+                    console.log("a")
+                    let _grade = this.data.grade_new[user][ QPP_CRITERIA.map(l=>l.criteria)[i] ]
+                    l.querySelector('input[type="range"]').value = _grade
+
+                    l.querySelector("[name='value']").innerHTML = _grade
+                    let _band = '';
+                    if(_grade >= 0 && _grade <= 5){ _band = 'bad'; }
+                    else if(_grade >= 6 && _grade <= 10){ _band = 'normal'}
+                    else if(_grade >= 11 && _grade <= 15){ _band = 'good'}
+                    else if(_grade >= 16 && _grade <= 20){ _band = 'excellent'}
+                    l.querySelector("[name='comment']").innerHTML = QPP_CRITERIA[i][_band]
+                    console.log(_grade)
+                })
+                this.dom.querySelector("[name='grade']").innerHTML = `
+                    ${this.getGrade(user)} (${
+                        this.getGlobalGrade()
+                    } Global)
+                `
+                
+
+            }
         }
 
+
+        document.querySelector('[name="help"]').addEventListener('click', ()=>{
+            window.open("mailto:a01025025@itesm.mx")
+        })
 
     </script>
     <template class="template_documentDetails_details">
@@ -402,6 +510,11 @@
         <h3 name="author_title">Autor</h3>
         <span name="author">a</span>
         <br name="author_br">
+
+        <h3 name="reviewers_title">Revisores</h3>
+        <ul name="reviewers">
+        </ul>
+
         <h3>Calificación</h3>
         <span name="grade">aa</span>
 
@@ -414,7 +527,7 @@
     <template class="template_documentDetails_criteria">
         <fieldset>
             <legend>Text</legend>
-            <input type="range" min="0" max="20" step="5">
+            <input type="range" min="0" max="20" step="1">
             <span name="value">d</span>
             <span name="comment"></span>
         </fieldset>
