@@ -1,5 +1,4 @@
 const QPP_ADMINS = [
-    'eduardo@ctrlalttec.hackclub.com', 
     
     'a01027016@itesm.mx', 
     'a01025326@itesm.mx',
@@ -10,7 +9,9 @@ const QPP_ADMINS = [
 ]
 
 const QPP_REVIEWERS = [
-    'a01025025@itesm.mx',
+    'a01025025@itesm.mx', //remvoe
+    'eduardo@ctrlalttec.hackclub.com', //remove 
+
 
     'aguzmantinajero@tec.mx',
     'ada.godinez@tec.mx',

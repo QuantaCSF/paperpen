@@ -50,7 +50,8 @@
             padding: var(--measurement-simple);
             box-sizing: border-box;
             justify-content: space-around;
-            background: linear-gradient(to bottom, #f9fafc, #e0e6ed);
+            background: linear-gradient(to bottom, #ffffff, #ffffff, #eef0f3);
+            box-shadow: inset 0px -4px 7px 0px rgba(0, 0, 0, 0.11);
 
         }
         .container h1{
@@ -68,7 +69,7 @@
             cursor: pointer;
             height: 268px;
             width: 165px;
-            justify-content: center;
+            justify-content: inherit;
             text-align: center;
         }
 
@@ -82,6 +83,14 @@
             font-size: 22px;
             font-weight: 600;
             font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        .documentCard .documentCard_reviewed{
+            align-self: center;
+            padding: var(--measurement-half) var(--measurement-simple);
+            margin: var(--measurement-half);
+            color: white;
+            border-radius: 4px;
         }
 
         .documentCard .documentCard_author, .documentCard .documentCard_date{
@@ -175,7 +184,7 @@
             color: white;
             font-size: 1.2em;
         }
-        .documentDetails_details > ul[name='reviewers'] li.active{
+        .documentDetails_details ul[name='reviewers'] li.active{
             font-weight: bold;
         }
         
@@ -209,6 +218,7 @@
         }
 
     </style>
+    <script src="https://cdn.jsdelivr.net/gh/anomal/RainbowVis-JS@1.0.1/rainbowvis.js"></script>
 </head>
 <body>
     <div id="header">
@@ -216,7 +226,7 @@
         <img src="paperpen.png" alt="">
         <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
 
-        <button name="help">Necesito ayuda...</button>
+        <button name="help">Necesito ayuda</button>
 
 
     </div>
@@ -230,6 +240,52 @@
     <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-storage.js"></script>
 
     <script>
+        let rainbow = new Rainbow()
+        rainbow.setSpectrum('#de2e47','#5ac67b')
+        rainbow.setNumberRange(0,5)
+
+
+        class Story{
+            constructor(data){
+                this.data = {
+                    grade_new: {},
+                    ...data
+                }
+            }
+
+            sumGrades(){
+                let countableGrades = Object.values(this.data.grade_new)
+                    .map(l=> Object.values(l).reduce((a,b)=>a+b,0) )
+                    .flat()
+                    .reduce((a,b)=>a+b,0)
+                return countableGrades/this.getActiveReviewers().length || 0
+            }
+            getReviewerGrade(reviewer){
+                return Object.values(this.data.grade_new[reviewer]).reduce((a,b)=>a+b,0) || 0
+            }
+            getID(){
+                return window.atob(this.data.id.substring(0,12))
+            }
+            getReviewerCriteria(reviewer, criteria){
+                let grade = this.data.grade_new[ reviewer ][ criteria ]
+                let description = ''
+                if(grade >= 0 && grade <= 5){ description = 'bad'; }
+                else if(grade >= 6 && grade <= 10){ description = 'normal'}
+                else if(grade >= 11 && grade <= 15){ description = 'good'}
+                else if(grade >= 16 && grade <= 20){ description = 'excellent'}
+                return {
+                    grade: grade, 
+                    description: QPP_CRITERIA.find(l=>l.criteria==criteria)[description]
+                }
+            }
+            getActiveReviewers(){
+                return Object.keys(this.data.grade_new)
+                    .filter(l => l!= 'undefined')
+                    .filter(l => Object.values(this.data.grade_new[l]).reduce((a,b)=>a+b,0) != 0)
+            }
+        }
+
+
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
  
@@ -263,26 +319,22 @@
 
 
                 firebase.firestore().collection('paperpen2').get().then(query=>{
-                    
-                    query.forEach(doc=>{
-                        let docdata = {
+                    query.docs
+                        .map(l=> new Story({
                             grade_new: {},
-                            ...doc.data(), 
-                            id: doc.id
-                        };
-                        all.push(docdata)
-                        let card = new DocumentCard(docdata, userType, user.email).dom
-                        if( docdata.grade_new[user.email] && Object.values(docdata.grade_new[user.email]).reduce((a,b)=>a+b,0) != 0 ){
-                            reviewed_cont.append(card)
-                        } else {
-                            not_reviewed_cont.append(card)
-                        } 
-                    })
-
-                    console.table(all)
-
-                    
-
+                            ...l.data(), 
+                            id: l.id, 
+                        }))
+                        .sort((a,b)=>(a.getActiveReviewers().length-b.getActiveReviewers().length))
+                        .forEach(doc=>{
+                            all.push(doc)
+                            let card = new DocumentCard(doc, userType, user.email).dom
+                            if( doc.data.grade_new[user.email] && Object.values(doc.data.grade_new[user.email]).reduce((a,b)=>a+b,0) != 0 ){
+                                reviewed_cont.append(card)
+                            } else {
+                                not_reviewed_cont.append(card)
+                            } 
+                        })
                 })
 
             }
@@ -292,15 +344,21 @@
 
 
         class DocumentCard {
-            constructor(data, userType, usermail){
+            constructor(story, userType, usermail){
+                this.data = story;
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentCard';
                 let title = document.createElement('h1');
                 title.className = 'documentCard_title';
-                title.innerHTML = data.title;
-                this.dom.append(title)
+                title.innerHTML = story.data.title;
+
+                let reviewed = document.createElement('span')
+                reviewed.className = 'documentCard_reviewed'
+                reviewed.innerText = `Revisiones: ${story.getActiveReviewers().length}`
+                reviewed.style.backgroundColor = "#"+rainbow.colorAt( story.getActiveReviewers().length )
+                this.dom.append(title, reviewed)
                 this.dom.addEventListener('click', ()=>{
-                    new DocumentDetails(data, userType, usermail)
+                    new DocumentDetails(story, userType, usermail)
                 })
 
             }
@@ -308,19 +366,15 @@
 
 
         class DocumentDetails{
-            constructor(data, userType, usermail){
+            constructor(story, userType, usermail){
+                this.userType = userType;
+                this.usermail = usermail;
+                this.story = story
                 this.data = {
                     title: '',
                     score: 0, 
-                    comment: 'Comentarios', 
+                    comment: 'Escribe aquí tus comentarios', 
                     themes: [],
-                    grade: {
-                        'Creatividad': 0,
-                        'Implementación de elementos científicos veraces': 0,
-                        'Elementos literarios': 0,
-                        'Redacción': 0,
-                        'Formato': 0
-                    },
                     grade_new: {
                         'test': {
                             'Creatividad': 0,
@@ -330,11 +384,8 @@
                             'Formato': 0
                         }
                     },
-                    reviewers: [],
-                    ...data
+                    ...story.data
                 };
-
-
                 if(this.data.grade_new[usermail] == undefined){
                     this.data.grade_new[usermail] = {
                         'Creatividad': 0,
@@ -344,101 +395,58 @@
                         'Formato': 0
                     }
                 }
-
+                // Decrypt id
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentDetails';
+                // Add pdf
                 let pdf = document.createElement('iframe');
-                firebase.storage().ref().child("paperpen2/"+data.id).getDownloadURL().then(url=>{
+                firebase.storage().ref().child("paperpen2/"+this.data.id).getDownloadURL().then(url=>{
                     pdf.src = url
                 })
+                // Add close btn
                 let close = document.createElement('div');
                 close.className = 'documentDetails_close';
                 close.classList.add('material-icons'); 
                 close.innerHTML = "close"
 
-                let details = document.createElement('div');
-                details.className = 'documentDetails_details'
-                details.appendChild(document.importNode(document.querySelector('.template_documentDetails_details').content, true))
+                this.details_dom = document.createElement('div');
+                this.details_dom.className = 'documentDetails_details'
+                this.details_dom.appendChild(document.importNode(document.querySelector('.template_documentDetails_details').content, true))
                 
-                details.querySelector("[name='title']").innerHTML = this.data.title
+                let details = this.details_dom
                 
+                this.details_dom.querySelector("[name='title']").innerHTML = this.data.title
+                this.details_dom.querySelector("[name='comments']").value = this.data.comment
 
-                details.querySelector("[name='comments']").value = this.data.comment
-                let id = window.atob(data.id.substring(0,12))
-
-                let reviewers = Object.keys(this.data.grade_new).filter(l=>l!="undefined")
-
-                if(userType != 'admin' || reviewers.length <= 0){
-                    details.querySelector("[name='reviewers']").remove();
-                    details.querySelector("[name='reviewers_title']").remove();
-                }
-
-                if(userType!='admin'){
-                    details.querySelector("[name='author_title']").remove();
-                    details.querySelector("[name='author']").remove();
-                    details.querySelector("[name='author_br']").remove();
-
+                this.renderReviewers()
+                this.renderAuthor()
+                this.renderThemes()
+                this.renderCriteriaFields()
+                this.renderCriteria(this.usermail)
+                // Get grade
+                if(this.userType == 'admin'){ 
+                    this.details_dom.querySelector("[name='grade']").innerHTML = story.sumGrades()
                 } else {
-                    details.querySelector("[name='author']").innerHTML = this.data.name + `
-                    <a href="mailto:${id}@itesm.mx">(${id})</a>`;
-                    reviewers.forEach((reviewer, i)=>{
-                        let li = document.createElement('li');
-                        li.innerText = `${reviewer} (${ Object.values(this.data.grade_new[reviewer]).reduce((a,b)=>a+b,0) })`
-                        details.querySelector("[name='reviewers']").append(li)
-                        li.addEventListener('click', ()=>{
-                            details.querySelectorAll("[name='reviewers'] li").forEach(l=>{l.classList.remove('active')})
-                            li.classList.add('active')
-                            this.getCriteriaGrade(reviewer, i)
-                        })
-                    })
+                    this.details_dom.querySelector("[name='grade']").innerHTML = story.getReviewerGrade(this.usermail)
                 }
-
-                data.themes.forEach(l=>{
-                    let theme = document.createElement('li');
-                    theme.innerText = l;
-                    details.querySelector("[name='themes']").append(theme)
-                })
-
-                QPP_CRITERIA.forEach(l=>{
-                    let row = document.createElement('div');
-                    row.className = 'documentDetails_details_criteria';
-                    row.appendChild(document.importNode(document.querySelector('.template_documentDetails_criteria').content, true));
-                    row.querySelector("legend").innerText = l.criteria;
-                    row.querySelector("input[type='range']").addEventListener('change', e=>{
-                        this.data.grade_new[usermail][l.criteria] = Number(e.target.value);
-                        this.getCriteriaGrade(usermail);
-                    })
-                    details.append(row)
-                })
-
-
-
-                details.prepend(close);
-                
+                this.details_dom.prepend(close);
                 if(userType == 'reviewer'){
                     let button = document.createElement('button');
                     button.innerHTML = "Enviar"
-                    button.addEventListener('click', ()=>{
-                        this.pushData()
-                    })
-                    details.append(button)
+                    button.addEventListener('click', ()=>{this.pushData()})
+                    this.details_dom.append(button)
                  } else {
-
-                    details.querySelector("[name='grade']").innerHTML = this.getGlobalGrade()
-
-                    details.querySelectorAll('textarea, input').forEach(l=>{
-                        l.disabled = true
-                    });
-
+                    this.details_dom.querySelector("[name='grade']").innerHTML = this.getGlobalGrade()
+                    this.details_dom.querySelectorAll('textarea, input').forEach(l=>{l.disabled = true});
                     let legend = document.createElement('div');
                     legend.innerText = 'Solo los revisores pueden editar la información';
-                    details.append(legend)
+                    this.details_dom.append(legend)
                 }
 
                 
 
                 this.dom.append(pdf, details);
-                this.getCriteriaGrade(usermail)
+                //this.getCriteriaGrade(usermail)
 
                 document.body.append(this.dom)
 
@@ -450,12 +458,77 @@
 
             }
 
+
+            renderReviewers(){
+                let reviewers = this.story.getActiveReviewers()
+                if(reviewers.length <= 0 || this.userType != 'admin'){
+                    this.details_dom.querySelector("[name='reviewers_cont']").remove();
+                }
+                if(this.userType == 'admin'){
+                    reviewers.forEach((reviewer, i)=>{
+                        let li = document.createElement('li');
+                        li.innerText = `${reviewer} (${ this.story.getReviewerGrade(reviewer) })`
+                        this.details_dom.querySelector("[name='reviewers']").append(li)
+                        li.addEventListener('click', ()=>{
+                            this.details_dom.querySelectorAll("[name='reviewers'] li").forEach(l=>{l.classList.remove('active')})
+                            li.classList.add('active')
+                            this.renderCriteria(reviewer)
+                        })
+                    })
+                }
+            }
+            renderAuthor(){
+                if(this.userType !=' admin'){
+                    this.details_dom.querySelector("[name='author_cont']").remove();
+                } else {
+                    this.details_dom.querySelector("[name='author']").innerHTML = this.data.name + `
+                    <a href="mailto:${this.story.getID()}@itesm.mx">(${this.story.getID()})</a>`;
+                }
+            }
+            renderThemes(){
+                this.data.themes.forEach(l=>{
+                    let theme = document.createElement('li');
+                    theme.innerText = l;
+                    this.details_dom.querySelector("[name='themes']").append(theme)
+                })
+            }
+            renderCriteriaFields(){
+                QPP_CRITERIA.forEach(l=>{
+                    let row = document.createElement('div');
+                    row.className = 'documentDetails_details_criteria';
+                    row.appendChild(document.importNode(document.querySelector('.template_documentDetails_criteria').content, true));
+                    row.querySelector("legend").innerText = l.criteria;
+                    
+                    this.details_dom.append(row)
+                })
+            }
+            renderCriteria(user){
+                QPP_CRITERIA.forEach((l,i)=>{
+                    let row = this.details_dom.querySelectorAll('.documentDetails_details_criteria')[i]
+                    
+                    row.querySelector("input[type='range']").value = this.story.getReviewerCriteria(user, l.criteria).grade
+                    row.querySelector("[name='value']").innerHTML = this.story.getReviewerCriteria(user, l.criteria).grade
+                    row.querySelector("[name='comment']").innerHTML = this.story.getReviewerCriteria(user, l.criteria).description
+                    
+                    if(this.userType == 'reviewer'){
+                        row.querySelector("input[type='range']").addEventListener('change', e=>{
+                            this.story.data.grade_new[user][l.criteria] = Number(e.target.value);
+                            row.querySelector("[name='value']").innerHTML = this.story.getReviewerCriteria(user, l.criteria).grade
+                            row.querySelector("[name='comment']").innerHTML = this.story.getReviewerCriteria(user, l.criteria).description
+                            this.details_dom.querySelector("[name='grade']").innerHTML = this.story.getReviewerGrade(user);
+                        })
+                    } else if (this.userType == 'admin'){
+                        this.details_dom.querySelector("[name='grade']").innerHTML = `${this.story.getReviewerGrade(user)} (Global: ${this.story.sumGrades()})`
+
+                    }
+                })
+            }
+
             getGlobalGrade(){
                 let allgrades = Object.values(this.data.grade_new)
                                 .map(l=>Object.values(l))
                                 .filter(l=> l.reduce((a,b)=>a+b,0)!=0 )
 
-                                console.log("s",allgrades.reduce((a,b)=>a+b,0))
                 let grade = Math.round(allgrades.flat().reduce((a,b)=>a+b,0)/allgrades.length)
                 return grade
             }
@@ -469,33 +542,6 @@
                 })
             }
 
-            getGrade(user){
-                return Object.values(this.data.grade_new[user]).reduce((a,b)=>a+b,0)
-            }
-
-            getCriteriaGrade(user){
-                this.dom.querySelectorAll('.documentDetails_details_criteria').forEach((l,i)=>{
-                    console.log("a")
-                    let _grade = this.data.grade_new[user][ QPP_CRITERIA.map(l=>l.criteria)[i] ]
-                    l.querySelector('input[type="range"]').value = _grade
-
-                    l.querySelector("[name='value']").innerHTML = _grade
-                    let _band = '';
-                    if(_grade >= 0 && _grade <= 5){ _band = 'bad'; }
-                    else if(_grade >= 6 && _grade <= 10){ _band = 'normal'}
-                    else if(_grade >= 11 && _grade <= 15){ _band = 'good'}
-                    else if(_grade >= 16 && _grade <= 20){ _band = 'excellent'}
-                    l.querySelector("[name='comment']").innerHTML = QPP_CRITERIA[i][_band]
-                    console.log(_grade)
-                })
-                this.dom.querySelector("[name='grade']").innerHTML = `
-                    ${this.getGrade(user)} (${
-                        this.getGlobalGrade()
-                    } Global)
-                `
-                
-
-            }
         }
 
 
@@ -508,13 +554,17 @@
         <h1 name="title">Lorem Ipsum Dolor</h1>
         <ul name="themes"></ul>
         <br>
-        <h3 name="author_title">Autor</h3>
-        <span name="author">a</span>
-        <br name="author_br">
+        <div name="author_cont">
+            <h3 name="author_title">Autor</h3>
+            <span name="author">a</span>
+            <br name="author_br">
+        </div>
 
-        <h3 name="reviewers_title">Revisores</h3>
-        <ul name="reviewers">
-        </ul>
+        <div name="reviewers_cont">
+            <h3 name="reviewers_title">Revisores</h3>
+            <ul name="reviewers">
+            </ul>
+        </div>
 
         <h3>Calificación</h3>
         <span name="grade">aa</span>
