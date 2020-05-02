@@ -31,17 +31,59 @@
             margin: var(--measurement-simple);
         }
 
+        #header [name="help_cont"]{
+            justify-self: flex-end;
+            align-self: center;
+            margin-left: auto;
+        }
+
+        #header [name="help_options"]{
+            position: absolute;
+            right: 24px;
+            display: none;
+            padding: 0px;
+            margin: 0px;
+            border: 0.5px solid rgb(201, 201, 201);
+            border-radius: var(--measurement-simple);
+            list-style: none;
+            background: white;
+            box-shadow: 0px 2px 3px 0px #00000042;
+        }
+
+        #header [name="help_options"] li {
+            color: rgb(102, 102, 102);
+            padding: var(--measurement-double);
+            border-bottom: 0.5px solid rgb(200,200,200);
+        }
+        #header [name="help_options"] li:hover {
+            background: rgba(0,122,255, 0.5);
+            color: white;
+        }
+
+        #header [name="help_options"] li:first-child{
+            border-top: none;
+            border-top-right-radius: var(--measurement-simple);
+            border-top-left-radius: var(--measurement-simple);
+        }
+        #header [name="help_options"] li:last-child{
+            border-bottom: none;
+            border-bottom-right-radius: var(--measurement-simple);
+            border-bottom-left-radius: var(--measurement-simple);
+        }
+
+        #header [name="help_cont"]:focus-within [name="help_options"], #header [name="help_cont"] [name="help_options"]:hover {
+            display: block;
+        }
+
         #header button{
             background: rgb(0,122,255);
-            justify-self: flex-end;
             margin: var(--measurement-simple);
             appearance: none;
             border-radius: var(--measurement-simple);
             border: none;
             color: white;
             padding: var(--measurement-double);
-            align-self: center;
-            margin-left: auto;
+            
         }
 
         .container{
@@ -226,7 +268,18 @@
         <img src="paperpen.png" alt="">
         <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
 
-        <button name="help">Necesito ayuda</button>
+        <div name="help_cont">
+            <button name="help">Necesito ayuda</button>
+            <ul name="help_options">
+                <li name="help_faq">Preguntas frecuentes</li>
+                <li name="help_tut">¿Cómo usar este sitio?</li>
+                <li name="help_guide">Guía de temas</li>
+                <li name="help convo">Convocatoria</li>
+                <li name="help_mail">Enviar correo electronico</li>
+            </ul>
+            </button>
+        </div>
+
 
 
     </div>
@@ -545,11 +598,46 @@
         }
 
 
-        document.querySelector('[name="help"]').addEventListener('click', ()=>{
-            window.open("mailto:a01025025@itesm.mx")
+        // document.querySelector('[name="help"]').addEventListener('click', ()=>{
+        //     window.open("mailto:a01025025@itesm.mx")
+        // })
+
+        document.querySelector('[name="help"]').addEventListener('click',()=>{
+            document.querySelector('[name="help"]').focus()
+        })
+
+        document.querySelectorAll('[name="help_options"]>li').forEach(l=>{
+            let newLoc;
+
+            switch (l.getAttribute('name')) {
+                case 'help_faq':
+                    newLoc = 'faq.pdf'
+                    break;
+                case 'help_tut':
+                    newLoc = 'tutorial.pdf'
+                    break;
+                case 'help_guide':
+                    newLoc = 'Guía de temas concurso Ciencia-ficción.pdf'
+                    break;
+                case 'help_convo':
+                    newLoc = 'Convocatoria_CienciaFiccion_Quanta-PaperPen.pdf'
+                    break;
+                case 'help_mail':
+                    newLoc = 'mailto:a01025025@itesm.mx'
+                    break;
+                default:
+                    newLoc = ''
+                    break;
+            }
+            l.addEventListener('click', ()=>{
+                window.open(newLoc, null, "channelmode=yes")
+            })
         })
 
     </script>
+
+
+
     <template class="template_documentDetails_details">
         <h1 name="title">Lorem Ipsum Dolor</h1>
         <ul name="themes"></ul>
