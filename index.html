@@ -306,7 +306,7 @@
 
             let id = window.btoa(data.id.toLowerCase());
             
-            if(filled){
+            if(filled && new Date() < new Date('may 4, 2020')){
                 firebase.firestore().collection("paperpen2").doc(id).set(data).then(doc=>{
                     firebase.storage().ref().child("paperpen2/"+id).put(files).then(()=>{
                         console.log("done with file")
@@ -314,14 +314,26 @@
                         window.location.reload();
                     })
                 })
-            } else {
+            } else if(filled) {
                 alert("Por favor llena todos los campos")
+            } else if(new Date() > new Date('may 4, 2020')){
+                alert("Lo sentimos, la entrega de documentos ya no está disponible")
             }
 
 
 
  
         })
+
+
+        if(new Date() > new Date('may 4, 2020')){
+            document.querySelector("form").innerHTML = `
+                <h2>4. <small>Envíanos tu historia</small></h2>
+                <p>La entrega de documentos ya no está disponible</p>
+            ` 
+        }
+
+
     </script>
     
 
