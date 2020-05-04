@@ -537,7 +537,7 @@
                 }
             }
             renderAuthor(){
-                if(this.userType !=' admin'){
+                if(this.userType != 'admin'){
                     this.details_dom.querySelector("[name='author_cont']").remove();
                 } else {
                     this.details_dom.querySelector("[name='author']").innerHTML = this.data.name + `
