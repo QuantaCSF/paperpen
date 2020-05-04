@@ -12,7 +12,8 @@ const QPP_ADMINS = [
 ]
 
 const QPP_REVIEWERS = [
-
+    
+    'rskeweszorrilla@gmail.com',
     'aguzmantinajero@tec.mx',
     'ada.godinez@tec.mx',
     'yermainmendez@tec.mx',
