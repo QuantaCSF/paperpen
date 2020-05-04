@@ -133,7 +133,10 @@
             e.preventDefault();
             let username = document.querySelector('[name="email"]').value;
             let password = document.querySelector('[name="password"]').value;
-            firebase.auth().signInWithEmailAndPassword(username, password);
+            firebase.auth().signInWithEmailAndPassword(username, password).catch(e=>{
+                console.log(e)
+                alert(e.message)
+            });
         })
 
         firebase.auth().onAuthStateChanged(user=>{
