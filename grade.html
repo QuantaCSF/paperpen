@@ -454,7 +454,13 @@
                 // Add pdf
                 let pdf = document.createElement('iframe');
                 firebase.storage().ref().child("paperpen2/"+this.data.id).getDownloadURL().then(url=>{
-                    pdf.src = url
+                    console.log(url)
+                    //alert(window.navigator.userAgent)
+                    //if(window.navigator.userAgent.match(/iPad/i) || window.navigator.userAgent.match(/iPhone/i)){
+                        pdf.src = `http://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`
+                    //} else {
+                        //pdf.src = url
+                    //}
                 })
                 // Add close btn
                 let close = document.createElement('div');

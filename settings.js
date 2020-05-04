@@ -1,24 +1,22 @@
 const QPP_ADMINS = [
-    
+    'a01025025@itesm.mx', //remvoe
+    'eduardo@ctrlalttec.hackclub.com', //remove     
     'a01027016@itesm.mx', 
     'a01025326@itesm.mx',
     'a01027174@itesm.mx',
     'a01025344@itesm.mx', 
     'a01025320@itesm.mx', 
-    'ana.paula.chapa.7@gmail.com'
+    'ana.paula.chapa.7@gmail.com',
+    'negv@princeton.edu'
 ]
 
 const QPP_REVIEWERS = [
-    'a01025025@itesm.mx', //remvoe
-    'eduardo@ctrlalttec.hackclub.com', //remove 
-
-
     'aguzmantinajero@tec.mx',
     'ada.godinez@tec.mx',
     'yermainmendez@tec.mx',
     'leticiacruz@tec.mx', 
     'berenice.valencia@tec.mx', 
-    'teatreroloco@gmail.com'
+    'teatreroloco@gmail.com',
 ]
 
 const QPP_CRITERIA = [
