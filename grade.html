@@ -302,6 +302,7 @@
             constructor(data){
                 this.data = {
                     grade_new: {},
+                    comments_new: {},
                     ...data
                 }
             }
@@ -448,6 +449,9 @@
                         'Formato': 0
                     }
                 }
+                if(this.data.comments_new[usermail] == undefined){
+                    this.data.comments_new[usermail] = ''
+                }
                 // Decrypt id
                 this.dom = document.createElement('div');
                 this.dom.className = 'documentDetails';
@@ -476,7 +480,6 @@
                 let details = this.details_dom
                 
                 this.details_dom.querySelector("[name='title']").innerHTML = this.data.title
-                this.details_dom.querySelector("[name='comments']").value = this.data.comment
 
                 this.renderReviewers()
                 this.renderAuthor()
@@ -563,6 +566,15 @@
                 })
             }
             renderCriteria(user){
+
+                this.details_dom.querySelector("[name='comments']").value = this.data.comments_new[user]
+                if(this.userType == 'reviewer'){
+                    this.details_dom.querySelector("[name='comments']").addEventListener('input', ()=>{
+                        this.data.comments_new[user] = this.details_dom.querySelector("[name='comments']").value
+                    })
+                }
+
+
                 QPP_CRITERIA.forEach((l,i)=>{
                     let row = this.details_dom.querySelectorAll('.documentDetails_details_criteria')[i]
                     
