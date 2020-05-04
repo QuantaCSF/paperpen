@@ -453,14 +453,11 @@
                 this.dom.className = 'documentDetails';
                 // Add pdf
                 let pdf = document.createElement('iframe');
+
                 firebase.storage().ref().child("paperpen2/"+this.data.id).getDownloadURL().then(url=>{
                     console.log(url)
-                    //alert(window.navigator.userAgent)
-                    //if(window.navigator.userAgent.match(/iPad/i) || window.navigator.userAgent.match(/iPhone/i)){
-                        pdf.src = `http://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`
-                    //} else {
-                        //pdf.src = url
-                    //}
+                    pdf.src = `http://drive.google.com/viewerng/viewer?url=${encodeURIComponent(url)}&embedded=true`
+                    
                 })
                 // Add close btn
                 let close = document.createElement('div');

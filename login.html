@@ -121,6 +121,8 @@
             <input type="password" name="password">
         </fieldset>
 
+        <a href="" name="forgot">Olvide mi contraseña</a>
+
         <input type="submit" id="submit">
         <p style="text-align: center;">
             Made with 💙 by <a href="https://ctrl-alt-tec.hackclub.com">Ctrl Alt Tec</a>
@@ -143,6 +145,19 @@
             if(user){
                 window.location.replace('grade.html');
             }
+        })
+
+        document.querySelector('[name="forgot"]').addEventListener('click', e=>{
+            e.preventDefault();
+            let username = document.querySelector('[name="email"]').value;
+            if( confirm("Te enviaremos un enlace para recuperar tu contraseña.\nConfirma que tu correo electrónico sea correcto.\n\n"+username) ){
+                firebase.auth().sendPasswordResetEmail(username).then(()=>{
+                    alert("El correo se ha enviado exitosamente")
+                }).catch((e)=>{
+                    alert("Ocurrió un error\n"+JSON.stringify(e))
+                })
+            }
+            return false;
         })
 
     </script>
