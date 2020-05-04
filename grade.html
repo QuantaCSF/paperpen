@@ -455,8 +455,12 @@
                 let pdf = document.createElement('iframe');
 
                 firebase.storage().ref().child("paperpen2/"+this.data.id).getDownloadURL().then(url=>{
-                    console.log(url)
-                    pdf.src = `http://drive.google.com/viewerng/viewer?url=${encodeURIComponent(url)}&embedded=true`
+                    let isIOS = /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+                    if(isIOS){
+                        pdf.src = `http://drive.google.com/viewerng/viewer?url=${encodeURIComponent(url)}&embedded=true`
+                    } else {
+                        pdf.src = url
+                    }
                     
                 })
                 // Add close btn
