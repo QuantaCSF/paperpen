@@ -31,6 +31,14 @@
             margin: var(--measurement-simple);
         }
 
+        #header [name="user"]{
+            padding: 16px;
+            align-self: center;
+            font-weight: 600;
+            font-size: 1.2em;
+            color: rgb(102, 102, 102);
+        }
+
         #header [name="help_cont"]{
             justify-self: flex-end;
             align-self: center;
@@ -267,7 +275,7 @@
         <img src="quanta.PNG" alt=""> 
         <img src="paperpen.png" alt="">
         <img src="https://ctrl-alt-tec.hackclub.com/img/logo-block.png" alt="">
-
+        <span name="user"></span>
         <div name="help_cont">
             <button name="help">Necesito ayuda</button>
             <ul name="help_options">
@@ -356,6 +364,9 @@
                 console.log(userType)
                 let reviewed_cont;
                 let not_reviewed_cont;
+
+                document.querySelector('[name="user"]').innerHTML = `${user.email} (${userType})`
+
                 if(userType=='reviewer'){
                     reviewed_cont = document.querySelector('#reviewed')
                     not_reviewed_cont = document.querySelector('#not-reviewed')
