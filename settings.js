@@ -7,11 +7,11 @@ const QPP_ADMINS = [
     'a01025344@itesm.mx', 
     'a01025343@itesm.mx', 
     'a01025320@itesm.mx', 
-    'negv@princeton.edu'
+    'negv@princeton.edu',
+    'a01025025@itesm.mx',
 ]
 
 const QPP_REVIEWERS = [
-    'a01025025@itesm.mx',
     'aguzmantinajero@tec.mx',
     'ada.godinez@tec.mx',
     'yermainmendez@tec.mx',
