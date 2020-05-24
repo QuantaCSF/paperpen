@@ -320,10 +320,10 @@
                     .map(l=> Object.values(l).reduce((a,b)=>a+b,0) )
                     .flat()
                     .reduce((a,b)=>a+b,0)
-                return countableGrades/this.getActiveReviewers().length || 0
+                return (countableGrades/this.getActiveReviewers().length).toFixed(2) || 0.00
             }
             getReviewerGrade(reviewer){
-                return Object.values(this.data.grade_new[reviewer]).reduce((a,b)=>a+b,0) || 0
+                return (Object.values(this.data.grade_new[reviewer]).reduce((a,b)=>a+b,0)).toFixed(2) || 0.00
             }
             getID(){
                 return window.atob(this.data.id.substring(0,12))
