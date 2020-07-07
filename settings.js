@@ -9,6 +9,8 @@ const QPP_ADMINS = [
     'a01025320@itesm.mx', 
     'negv@princeton.edu',
     'a01025025@itesm.mx',
+    "a01657565@itesm.mx", 
+    "a01027946@itesm.mx"
 ]
 
 const QPP_REVIEWERS = [
